@@ -1,5 +1,8 @@
 package com.cse.mail.dal.model;
 
+import java.util.List;
+import java.util.Objects;
+
 import jakarta.persistence.*;
 
 @Entity(name = "User")
@@ -20,19 +23,7 @@ public class User {
             name = "id",
             updatable = false
     )
-    private long id;
-    @Column(
-            name = "first_name",
-            nullable = false,
-            columnDefinition = "TEXT"
-    )
-    private String firstName;
-    @Column(
-            name = "last_name",
-            nullable = false,
-            columnDefinition = "TEXT"
-    )
-    private String lastName;
+    private int id;
     @Column(
             name = "username",
             nullable = false,
@@ -40,56 +31,21 @@ public class User {
             unique = true
     )
     private String username;
-    @Column(
-            name = "password",
-            nullable = false,
-            columnDefinition = "TEXT"
-    )
-    private String password;
+
+    @OneToMany(mappedBy = "contactUser", cascade = CascadeType.ALL, orphanRemoval = true
+    ,fetch = FetchType.EAGER)
+    private List<Contact> contacts;
 
     public User() {
     }
 
-    public User(String firstName, String lastName, String username, String password) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public User(String username, List<Contact> contacts) {
         this.username = username;
-        this.password = password;
+        this.contacts = contacts;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                '}';
-    }
-
-    public long getId() {
+    public int getId() {
         return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
     }
 
     public String getUsername() {
@@ -100,11 +56,33 @@ public class User {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
+    public List<Contact> getContacts() {
+        return contacts;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setContacts(List<Contact> contacts) {
+        this.contacts = contacts;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", contacts=" + contacts +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return id == user.id && username.equals(user.username) && Objects.equals(contacts, user.contacts);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, contacts);
     }
 }
