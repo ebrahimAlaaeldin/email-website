@@ -13,8 +13,16 @@
       <v-container class="subheader">
         <v-icon @click="deleteSelected" class="mr-4">mdi-delete</v-icon>
         <!-- Conditionally render the appropriate button based on the route -->
-        <v-btn v-if="isTrashRoute && !isContactRoute && !isDraftRoute" @click="restoreSelected">Restore</v-btn>
-        <v-btn v-if="!isTrashRoute && !isContactRoute && !isDraftRoute" @click="openCopyToDialog">Copy To</v-btn>
+        <v-btn
+          v-if="isTrashRoute && !isContactRoute && !isDraftRoute"
+          @click="restoreSelected"
+          >Restore</v-btn
+        >
+        <v-btn
+          v-if="!isTrashRoute && !isContactRoute && !isDraftRoute"
+          @click="openCopyToDialog"
+          >Copy To</v-btn
+        >
       </v-container>
 
       <v-spacer></v-spacer>
@@ -22,13 +30,30 @@
 
       <v-container class="pa-0">
         <v-row>
-          <v-col v-for="(mail, index) in mails" :key="index" class="mb-4">
+          <!-- Inside the v-col for contacts -->
+        <v-col v-if="isContactRoute" v-for="(contact, index) in contacts" :key="index" class="mb-4">
+          <v-card :class="getContactCardClass(index)">
+            <v-card-title>{{ contact.name }}</v-card-title>
+            <v-card-subtitle>{{ contact.email }}</v-card-subtitle>
+            <v-btn @click="toggleContactSelect(index)">Select</v-btn> <!-- Add select button -->
+          </v-card>
+        </v-col>
+
+          <v-col
+            v-if="!isContactRoute"
+            v-for="(mail, index) in mails"
+            :key="index"
+            class="mb-4"
+          >
             <v-card :class="getCardClass(index)">
               <v-card-title>{{ mail.subject }}</v-card-title>
               <v-card-subtitle>{{ mail.sender }}</v-card-subtitle>
               <v-card-text>{{ mail.content }}</v-card-text>
               <v-list>
-                <v-list-item v-for="(attachment, attachmentIndex) in mail.attachments" :key="attachmentIndex">
+                <v-list-item
+                  v-for="(attachment, attachmentIndex) in mail.attachments"
+                  :key="attachmentIndex"
+                >
                   <v-list-item-icon>
                     <v-icon>mdi-attachment</v-icon>
                   </v-list-item-icon>
@@ -36,25 +61,28 @@
                     {{ attachment.name }}
                   </v-list-item-content>
                   <v-list-item-action>
-                    <v-btn @click="downloadAttachment(attachment)">Download</v-btn>
+                    <v-btn @click="downloadAttachment(attachment)"
+                      >Download</v-btn
+                    >
                   </v-list-item-action>
                 </v-list-item>
               </v-list>
               <v-card-actions>
                 <v-btn @click="toggleSelect(index)">Select</v-btn>
                 <!-- Conditionally render "Edit" or "View" button based on the route -->
-                <v-btn v-if="!isDraftRoute" @click="openDialog(mail)">View</v-btn>
-<Compose
-  v-if="isDraftRoute"
-  :username="username"
-  :defaultTo="mail?.sender?.toString() || ''"
-  :defaultSubject="mail?.subject?.toString() || ''"
-  :defaultContent="mail?.content?.toString() || ''"
-  :defaultPriority="mail?.priority?.toString() || ''"
-  :defaultAttachments="mail.attachments || []"
-/>
-           
-               </v-card-actions>
+                <v-btn v-if="!isDraftRoute" @click="openDialog(mail)"
+                  >View</v-btn
+                >
+                <Compose
+                  v-if="isDraftRoute"
+                  :username="username"
+                  :defaultTo="mail?.sender?.toString() || ''"
+                  :defaultSubject="mail?.subject?.toString() || ''"
+                  :defaultContent="mail?.content?.toString() || ''"
+                  :defaultPriority="mail?.priority?.toString() || ''"
+                  :defaultAttachments="mail.attachments || []"
+                />
+              </v-card-actions>
             </v-card>
           </v-col>
         </v-row>
@@ -66,7 +94,12 @@
             <v-card-subtitle>{{ selectedMail.sender }}</v-card-subtitle>
             <v-card-text>{{ selectedMail.content }}</v-card-text>
             <v-list>
-              <v-list-item v-for="(attachment, attachmentIndex) in selectedMail.attachments" :key="attachmentIndex">
+              <v-list-item
+                v-for="(
+                  attachment, attachmentIndex
+                ) in selectedMail.attachments"
+                :key="attachmentIndex"
+              >
                 <v-list-item-icon>
                   <v-icon>mdi-attachment</v-icon>
                 </v-list-item-icon>
@@ -74,7 +107,9 @@
                   {{ attachment.name }}
                 </v-list-item-content>
                 <v-list-item-action>
-                  <v-btn @click="downloadAttachment(attachment)">Download</v-btn>
+                  <v-btn @click="downloadAttachment(attachment)"
+                    >Download</v-btn
+                  >
                 </v-list-item-action>
               </v-list-item>
             </v-list>
@@ -104,6 +139,8 @@
         </v-dialog>
       </v-container>
     </v-main>
+    <!-- At the bottom of the template -->
+
   </v-app>
 </template>
 
@@ -111,9 +148,10 @@
 import Navbar from "@/components/SideBar.vue";
 import Header from "@/components/Header";
 import Compose from "@/components/Compose.vue";
+
 export default {
   name: "Inbox",
-  components: { Navbar, Header , Compose},
+  components: { Navbar, Header, Compose },
   data() {
     return {
       username: this.$route.params.username,
@@ -132,8 +170,14 @@ export default {
           sender: "Sender 1",
           content: "Content 1",
           attachments: [
-            { name: "Attachment1.txt", content: "File content for Attachment1" },
-            { name: "Attachment2.txt", content: "File content for Attachment2" },
+            {
+              name: "Attachment1.txt",
+              content: "File content for Attachment1",
+            },
+            {
+              name: "Attachment2.txt",
+              content: "File content for Attachment2",
+            },
           ],
         },
         {
@@ -141,7 +185,10 @@ export default {
           sender: "Sender 2",
           content: "Content 2",
           attachments: [
-            { name: "Attachment3.txt", content: "File content for Attachment3" },
+            {
+              name: "Attachment3.txt",
+              content: "File content for Attachment3",
+            },
           ],
         },
         {
@@ -154,7 +201,10 @@ export default {
           sender: "Sender 4",
           content: "Content 4",
           attachments: [
-            { name: "Attachment4.txt", content: "File content for Attachment4" },
+            {
+              name: "Attachment4.txt",
+              content: "File content for Attachment4",
+            },
           ],
         },
         {
@@ -163,12 +213,35 @@ export default {
           content: "Content 5",
         },
       ],
+      contacts: [
+        {
+          name: "Contact 1",
+          email: "hi@fd.com",
+        },
+        {
+          name: "Contact 2",
+          email: "HDJ",
+        },
+        {
+          name: "Contact 3",
+          email: "HDJ",
+        },
+        {
+          name: "Contact 4",
+          email: "HDJ",
+        },
+        {
+          name: "Contact 5",
+          email: "HDJ",
+        },
+      ],
       select: [],
+      selected_contacts: [],
       dialogVisible: false,
       selectedMail: null,
-      trashRouteName: 'trash',
-      contactRouteName: 'contact',
-      draftRouteName: 'draft',
+      trashRouteName: "trash",
+      contactRouteName: "contact",
+      draftRouteName: "draft",
     };
   },
   computed: {
@@ -222,9 +295,11 @@ export default {
     },
     downloadAttachment(attachment) {
       const fileContent = attachment.content;
-      const blob = new Blob([fileContent], { type: 'application/octet-stream' });
+      const blob = new Blob([fileContent], {
+        type: "application/octet-stream",
+      });
 
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = window.URL.createObjectURL(blob);
       link.download = attachment.name;
       link.click();
@@ -234,21 +309,36 @@ export default {
       console.log("Open Compose for editing:", mail);
       // Example: You might emit an event or update a state to open the Compose component
     },
+    toggleContactSelect(index) {
+
+      this.selected_contacts = Object.assign([], this.selected_contacts, {
+        [index]: !this.selected_contacts[index],
+      });    
+      console.log(" Selected contacts:", this.selected_contacts)
+      },
+    getContactCardClass(index) {
+
+      return this.selected_contacts[index] ? "selected-contact" : "";
+    },
   },
 };
 </script>
 
+
 <style scoped>
-.selected-card {
+.selected-card,
+.selected-contact {
   background-color: #304859;
 }
 </style>
+
 <style>
 .main-content {
   margin-left: 300px;
   margin-top: 50px;
 }
 </style>
+
 <style scoped>
 .subheader {
   display: flex;

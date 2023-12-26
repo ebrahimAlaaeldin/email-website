@@ -11,7 +11,7 @@
       class="search"
     ></v-text-field>
 
-    <!-- Folder selection dropdown -->
+<v-pagination :total-visible="1" :length="100"></v-pagination>    <!-- Folder selection dropdown -->
     <v-select
       v-model="selectedFolder"
       :items="folderOptions"
@@ -63,7 +63,25 @@ export default {
       searchCriteriaOptions: ["Subject", "Sender Email", "Priority"],
       sortCriteria: "Date",
       sortCriteriaOptions: ["Date", "Sender Email", "Priority", "Subject"],
+      pageNumber: 1,
     };
+  },
+  computed: {
+    // Calculate the total number of pages based on itemsPerPage
+    totalPages() {
+      return Math.ceil(this.filteredItems?.length / this.itemsPerPage);
+    },
+    // Calculate the starting index for the current page
+    startIndex() {
+      return (this.pageNumber - 1) * this.itemsPerPage;
+    },
+    // Get a slice of items based on the current page
+    paginatedItems() {
+      return this.filteredItems.slice(
+        this.startIndex,
+        this.startIndex + this.itemsPerPage
+      );
+    },
   },
   methods: {
     confirmSearch() {

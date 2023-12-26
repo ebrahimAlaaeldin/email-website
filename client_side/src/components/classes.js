@@ -1,33 +1,75 @@
 
 export  class User{
-    constructor(name){
-        this.name=name
+    constructor(Uid,username){
+        this.userId=Uid
+        this.username=username
     }
 }
 
-export class Mail{
-    constructor(From,To,Subject,Body,Date,Pirority,Attachment){
-        this.From=From
-        this.To=To
-        this.Subject=Subject
-        this.Body=Body
-        this.Date=Date
-        this.Attachment=Attachment
-        this.Pirority=Pirority
+export class PostEmailDto{
+    constructor(Mid,From,To,Subject,Body,Date,Priority,Attachment){
+        this.emailId=Mid
+        this.sender=From
+        this.receivers=To
+        this.subject=Subject
+        this.body=Body
+        this.timestamp=Date
+        this.attachments=Attachment
+        this.priority=Priority
     }
 }
 
 export class Contact{
-    constructor(name,email,User){
+    constructor(Cid,name,email,UserId){
+        this.contactId=Cid
         this.name=name
-        this.email=email
-        this.User=User
+        this.contactEmails=email
+        this.userId=UserId
     }
 }
 
 export class Folder{
-    constructor(name,User){
-        this.name=name
-        this.User=User
+    constructor(name,name,isRemovable,isRenamable){
+        this.folderId=FID
+        this.folderName=name
+        this.isRemovable=isRemovable
+        this.isRenameable=isRenamable
+    }
+}
+
+export class Transfer{
+    constructor(FID1,FID2,MIDs){
+        this.folderIdSource=FID1
+        this.folderIdDestination=FID2
+        this.emailIds=MIDs
+    }
+}
+
+export class Attachment{
+    constructor(AID,path,filename){
+        this.attachmentId=AID
+        this.path=path
+        this.filename=filename
+        
+    }
+
+}
+export class get_email{
+    constructor(UID,FID,SearchBy,SearchFor,SortBy,PageNumber,NumberOfElements)
+    {
+        this.userId=UID
+        this.folderId=FID
+        this.searchType=SearchBy
+        this.searchFor=SearchFor
+        this.sortBy=SortBy
+        this.pageNumber=PageNumber
+        this.numberOfElementsInPage=NumberOfElements
+    }
+}
+
+export class get_mails_and_maxP{
+    constructor(mails,maxP){
+        this.emails=mails
+        this.numberOfPages=maxP
     }
 }

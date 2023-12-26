@@ -7,9 +7,7 @@
         <v-card-title class="grey lighten-2">
           Compose
           <v-spacer></v-spacer>
-          <v-btn color="error" text @click="close">
-            Close
-          </v-btn>
+          <v-btn color="error" text @click="close"> Close </v-btn>
         </v-card-title>
 
         <v-card-text>
@@ -45,18 +43,21 @@
             ></v-select>
 
             <!-- Display default attachments -->
-<!-- Display default attachments -->
-<v-row v-if="defaultAttachments.length > 0">
-  <v-col>
-    <h4>Attachments:</h4>
-    <ul>
-      <li v-for="(attachment, index) in defaultAttachments" :key="index">
-        <a :href="attachment.url" target="_blank" download>{{ attachment.name }}</a>
-      </li>
-    </ul>
-  </v-col>
-</v-row>
-
+            <v-row v-if="defaultAttachments?.length > 0">
+              <v-col>
+                <h4>Attachments:</h4>
+                <ul>
+                  <li
+                    v-for="(attachment, index) in defaultAttachments"
+                    :key="index"
+                  >
+                    <a :href="attachment.url" target="_blank" download>{{
+                      attachment.name
+                    }}</a>
+                  </li>
+                </ul>
+              </v-col>
+            </v-row>
 
             <v-row>
               <v-btn color="success" @click="submit">Send</v-btn>
@@ -103,15 +104,15 @@ export default {
       attachments: this.defaultAttachments || [],
       dialog: false,
       date: new Date().toISOString(),
-      inputRules: [
-        (v) => !!v || "This field is required",
-      ],
+      inputRules: [(v) => !!v || "This field is required"],
       emailRules: [
         (v) => !!v || "This field is required",
         (v) => {
-          const emails = v.split(',').map(email => email.trim());
-          return emails.every(email => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) ||
-            "Invalid email format. Ensure each email has '@' and '.com'";
+          const emails = v.split(",").map((email) => email.trim());
+          return (
+            emails.every((email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) ||
+            "Invalid email format. Ensure each email has '@' and '.com'"
+          );
         },
       ],
     };
@@ -119,7 +120,7 @@ export default {
   methods: {
     close() {
       console.log(this.defaultContent);
-      console.log('Close button clicked');
+      console.log("Close button clicked");
       this.dialog = false;
       this.clear();
       this.$refs.myFileInput.reset();
@@ -140,7 +141,7 @@ export default {
           this.Subject,
           this.content,
           this.date,
-          this.priority,
+          this.priority
         );
         bodyFormData.append("mail", JSON.stringify(mail));
 
@@ -156,7 +157,7 @@ export default {
         });
 
         var formObject = {};
-        bodyFormData.forEach(function(value, key) {
+        bodyFormData.forEach(function (value, key) {
           formObject[key] = value;
         });
 
@@ -220,9 +221,9 @@ export default {
             this.Subject,
             this.content,
             this.date,
-            this.priority,
-          ),
-        ),
+            this.priority
+          )
+        )
       );
 
       // Append new attachments

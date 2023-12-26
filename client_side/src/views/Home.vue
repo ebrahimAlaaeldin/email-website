@@ -1,7 +1,7 @@
 <template>
-  <HelloWorld />
+  <Mails />
 </template>
 
 <script setup>
-  import HelloWorld from '@/components/Mails.vue'
+  import Mails from '@/components/Mails.vue'
 </script>
