@@ -1,19 +1,20 @@
 package com.cse.mail;
 
-import com.cse.mail.dal.model.Attachment;
+
 import com.cse.mail.dal.model.Contact;
-import com.cse.mail.dal.model.Email;
 import com.cse.mail.dal.model.User;
-import com.cse.mail.dal.repository.EmailRepository;
 import com.cse.mail.dal.repository.UserRepository;
 import com.github.javafaker.Faker;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.server.ConfigurableWebServerFactory;
 import org.springframework.context.annotation.Bean;
 
 import java.util.ArrayList;
 import java.util.List;
+
+
 
 @SpringBootApplication
 public class MailApplication {
@@ -21,8 +22,6 @@ public class MailApplication {
     public static void main(String[] args) {
         SpringApplication.run(MailApplication.class, args);
     }
-
-
     private Faker faker = new Faker();
     @Bean
     CommandLineRunner commandLineRunner(UserRepository userRepository){
@@ -41,4 +40,12 @@ public class MailApplication {
             User createdUser = userRepository.save(user);
         };
     }
+    public void customize(ConfigurableWebServerFactory factory) {
+        // Set the desired port
+        factory.setPort(8000);
+    }
+
 }
+
+
+
