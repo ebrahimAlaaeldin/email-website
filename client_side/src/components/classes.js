@@ -29,7 +29,7 @@ export class Contact{
 }
 
 export class Folder{
-    constructor(name,name,isRemovable,isRenamable){
+    constructor(FID,name,isRemovable,isRenamable){
         this.folderId=FID
         this.folderName=name
         this.isRemovable=isRemovable

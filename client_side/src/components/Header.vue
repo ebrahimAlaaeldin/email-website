@@ -86,7 +86,7 @@ export default {
   methods: {
     confirmSearch() {
       // Redirect to /search/username route
-      this.$router.push({ path: `/search/${this.username}` });
+      this.$router.push({ path: `/search/${this.username}/${this.searchCriteria}/${this.searchText}/${this.sortCriteria}/${this.pageNumber}/${this.selectedFolder}` });
 
       // Additional logic (if needed)
       console.log(

@@ -28,11 +28,6 @@ const routes = [
     name: 'trash',
     component: Home 
   },
-  {
-    path: '/search/:username',
-    name: 'search',
-    component: Home
-  },
   // {
   //   path: '/',
   //   name: 'signin',
@@ -44,8 +39,8 @@ const routes = [
   //   component: Home
   // },
   {
-    path: '/draft/:username',
-    name: 'draft',
+    path: '/folder/:foldername/:username',
+    name: 'folder',
     component: Home
   },
   {
@@ -57,6 +52,11 @@ const routes = [
     path:'/signin',
     name:'signin',
     component: SignIn
+  },
+  {
+    path:'/search/:username/:searchby/:searchfor/:sortby/:pagenumber/:FolderName',
+    name:'search',
+    component: Home
   }
 ]
 

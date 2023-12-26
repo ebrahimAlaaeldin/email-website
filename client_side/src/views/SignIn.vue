@@ -9,25 +9,41 @@
             outlined
             solo-inverted
           ></v-text-field>
-          <v-btn type="submit"  color="primary">Submit</v-btn>
+          <v-btn type="submit" color="primary">Submit</v-btn>
         </v-form>
       </v-col>
     </v-row>
+
+    <!-- Display user information -->
+    <div v-if="user">
+      <h2>User Information</h2>
+      <p>User ID: {{ user.userId }}</p>
+      <p>Username: {{ user.username }}</p>
+    </div>
   </v-container>
 </template>
 
 <script>
+import axios from 'axios';
+import { User } from '@/components/classes.js';
+
 export default {
   data() {
     return {
       username: '',
+      user: null,
     };
   },
   methods: {
-    submitUsername() {
+    async submitUsername() {
       if (this.username) {
-        // Redirect to /index/username route
-        this.$router.push( '/inbox/' + this.username);
+        try {
+          const response = await axios.get(`/api/user/${this.username}`); // Replace with your actual API endpoint
+          const userData = response.data; // Assuming the server returns user data
+          this.user = new User(userData.userId, userData.username);
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
       } else {
         alert('Please enter a username');
       }

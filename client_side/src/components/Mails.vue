@@ -1,5 +1,6 @@
 <template>
   <v-app>
+  
     <Header :username="username" />
 
     <!-- Sidebar -->
@@ -150,6 +151,13 @@ import Header from "@/components/Header";
 import Compose from "@/components/Compose.vue";
 
 export default {
+  watch: {
+    '$route': function (to, from) {
+      // This will be called whenever the route changes
+      console.log('Route changed:', to, from);
+
+    }
+  },
   name: "Inbox",
   components: { Navbar, Header, Compose },
   data() {
@@ -255,7 +263,7 @@ export default {
       return this.$route.name === this.contactRouteName;
     },
     isDraftRoute() {
-      return this.$route.name === this.draftRouteName;
+      return this.$route.params.foldername === this.draftRouteName;
     },
   },
   methods: {

@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import { Mail } from "@/components/classes.js";
+import { PostEmailDto } from "@/components/classes.js";
 import axios from "axios";
 
 export default {
