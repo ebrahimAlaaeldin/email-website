@@ -27,6 +27,11 @@ const routes = [
     name: 'trash',
     component: Home 
   },
+  {
+    path: '/search/:username',
+    name: 'search',
+    component: Home
+  },
   // {
   //   path: '/',
   //   name: 'signin',

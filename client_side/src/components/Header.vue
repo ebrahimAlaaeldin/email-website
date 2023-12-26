@@ -11,6 +11,16 @@
       class="search"
     ></v-text-field>
 
+    <!-- Folder selection dropdown -->
+    <v-select
+      v-model="selectedFolder"
+      :items="folderOptions"
+      label="Select Folder"
+      outlined
+      hide-details
+      class="folder-select"
+    ></v-select>
+
     <!-- Search criteria dropdown -->
     <v-select
       v-model="searchCriteria"
@@ -21,7 +31,6 @@
       class="search-criteria"
     ></v-select>
 
-    <!-- Sorting criteria dropdown -->
     <!-- Sorting criteria dropdown -->
     <v-select
       v-model="sortCriteria"
@@ -48,16 +57,24 @@ export default {
   data() {
     return {
       searchText: "",
-      searchCriteria: "Subject", // Default search criteria
-      searchCriteriaOptions: ["Subject", "Sender Email", "Priority"], // Add more criteria as needed
-      sortCriteria: "Date", // Default sort criteria
-      sortCriteriaOptions: ["Date", "Sender Email", "Priority", "Subject"], // Add more criteria as needed
+      selectedFolder: "", // New property for folder selection
+      folderOptions: ["Inbox", "Sent", "Drafts"], // Add more folders as needed
+      searchCriteria: "Subject",
+      searchCriteriaOptions: ["Subject", "Sender Email", "Priority"],
+      sortCriteria: "Date",
+      sortCriteriaOptions: ["Date", "Sender Email", "Priority", "Subject"],
     };
   },
   methods: {
     confirmSearch() {
+      // Redirect to /search/username route
+      this.$router.push({ path: `/search/${this.username}` });
+
+      // Additional logic (if needed)
       console.log(
-        "Starting search:",
+        "Starting search in folder:",
+        this.selectedFolder,
+        "with criteria:",
         this.searchText,
         "with criteria:",
         this.searchCriteria
@@ -65,12 +82,11 @@ export default {
       console.log("Sorting by:", this.sortCriteria);
       // You can put additional logic here, such as triggering a search function
     },
-changeSortCriteria() {
-  console.log('changeSortCriteria method called');
-  console.log('Sorting by:', this.sortCriteria);
-  // You can put additional logic here, such as triggering a sorting function
-}
-
+    changeSortCriteria() {
+      console.log('changeSortCriteria method called');
+      console.log('Sorting by:', this.sortCriteria);
+      // You can put additional logic here, such as triggering a sorting function
+    },
   },
 };
 </script>
@@ -80,6 +96,7 @@ changeSortCriteria() {
   width: 100px !important;
 }
 
+.folder-select,
 .search-criteria,
 .sort-criteria {
   width: 150px !important;

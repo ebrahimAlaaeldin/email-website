@@ -1,16 +1,14 @@
 <template>
   <div class="text-center">
     <v-btn color="black" @click="dialog = true">Compose</v-btn>
-          
+
     <v-dialog v-model="dialog" width="500">
-
-
       <v-card>
         <v-card-title class="grey lighten-2">
           Compose
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="close">
-            close
+            Close
           </v-btn>
         </v-card-title>
 
@@ -22,7 +20,7 @@
               prepend-icon="person"
               autocomplete="off"
               :rules="emailRules"
-              hint="for multiple receivers seperate handles with a comma ',' "
+              hint="For multiple receivers, separate handles with a comma ',' "
             ></v-text-field>
 
             <v-text-field
@@ -39,13 +37,27 @@
               autocomplete="off"
               :rules="inputRules"
             ></v-textarea>
-          <v-select
-            v-model="priority"
-            :items="['Superhigh', 'high', 'medium', 'low']"
-            label="Priority"
-            dense
-          ></v-select>
-            
+            <v-select
+              v-model="priority"
+              :items="['Superhigh', 'high', 'medium', 'low']"
+              label="Priority"
+              dense
+            ></v-select>
+
+            <!-- Display default attachments -->
+<!-- Display default attachments -->
+<v-row v-if="defaultAttachments.length > 0">
+  <v-col>
+    <h4>Attachments:</h4>
+    <ul>
+      <li v-for="(attachment, index) in defaultAttachments" :key="index">
+        <a :href="attachment.url" target="_blank" download>{{ attachment.name }}</a>
+      </li>
+    </ul>
+  </v-col>
+</v-row>
+
+
             <v-row>
               <v-btn color="success" @click="submit">Send</v-btn>
               <v-spacer></v-spacer>
@@ -69,37 +81,30 @@
 </template>
 
 <script>
-import {
-  Mail
-} from "@/components/classes.js";
+import { Mail } from "@/components/classes.js";
 import axios from "axios";
+
 export default {
-  props: { 
+  props: {
     username: String,
-    defaultTo: String,  // Add prop for default receivers
-    defaultSubject: String,  // Add prop for default subject
-    defaultContent: String,  // Add prop for default body
-    defaultPriority: String,  // Add prop for default priority
+    defaultTo: String,
+    defaultSubject: String,
+    defaultContent: String,
+    defaultPriority: String,
+    defaultAttachments: Array, // Add prop for default attachments
   },
-  // computed: {
-  //   // Add computed property for default sender
-  //   defaultFrom() {
-  //     return this.username;
-  //   },
-  // },
   data() {
     return {
-      To: this.defaultTo || "",  // Use prop value as default or an empty string
+      To: this.defaultTo || "",
       From: this.username,
-      Subject: this.defaultSubject || "",  // Use prop value as default or an empty string
-      content: this.defaultContent || "",  // Use prop value as default or an empty string
-      priority: this.defaultPriority || "low",  // Use prop value as default or "low"
-
+      Subject: this.defaultSubject || "",
+      content: this.defaultContent || "",
+      priority: this.defaultPriority || "low",
+      attachments: this.defaultAttachments || [],
       dialog: false,
-      dialogDraft: false,
       date: new Date().toISOString(),
       inputRules: [
-        (v) => !!v || "This field is required"
+        (v) => !!v || "This field is required",
       ],
       emailRules: [
         (v) => !!v || "This field is required",
@@ -120,41 +125,44 @@ export default {
       this.$refs.myFileInput.reset();
     },
     clear() {
-      (this.To = ""),
-      (this.Subject = ""),
-      (this.content = ""),
-      (this.priority = "low");
+      this.To = "";
+      this.Subject = "";
+      this.content = "";
+      this.priority = "low";
     },
     submit() {
       let array = this.To.split(",");
       if (this.$refs.form.validate()) {
         var bodyFormData = new FormData();
-        var mail=new Mail(
-              this.From,
-              array,
-              this.Subject,
-              this.content,
-              this.date,
-              this.priority,
-              
-            );
-        bodyFormData.append(
-          "mail",
-          JSON.stringify(
-            mail
-            )
-          );
+        var mail = new Mail(
+          this.From,
+          array,
+          this.Subject,
+          this.content,
+          this.date,
+          this.priority,
+        );
+        bodyFormData.append("mail", JSON.stringify(mail));
+
+        // Append new attachments
         let g = document.getElementById("choose").files;
         for (let i = 0; i < g.length; i++) {
           bodyFormData.append("file", g[i]);
         }
-        var formObject = {};
-    bodyFormData.forEach(function(value, key){
-        formObject[key] = value;
-    });
 
-    // Log the object to the console
-    console.log(formObject);
+        // Append default attachments
+        this.attachments.forEach((attachment) => {
+          bodyFormData.append("file", attachment);
+        });
+
+        var formObject = {};
+        bodyFormData.forEach(function(value, key) {
+          formObject[key] = value;
+        });
+
+        // Log the object to the console
+        console.log(formObject);
+
         var size = 0;
         for (let i = 0; i < g.length; i++) {
           size = size + g[i].size;
@@ -182,8 +190,8 @@ export default {
               g = null;
               location.reload();
             } else {
-              console.log("sent:"+bodyFormData);
-              alert("one or all recievers are wrong");
+              console.log("sent:" + bodyFormData);
+              alert("one or all receivers are wrong");
             }
           });
         }
@@ -206,20 +214,27 @@ export default {
       bodyFormData.append(
         "mail",
         JSON.stringify(
- new Mail(
-              this.From,
-              array,
-              this.Subject,
-              this.content,
-              this.date,
-              this.priority,
-              
-            )
-        )
+          new Mail(
+            this.From,
+            array,
+            this.Subject,
+            this.content,
+            this.date,
+            this.priority,
+          ),
+        ),
       );
+
+      // Append new attachments
       for (let i = 0; i < g.length; i++) {
         bodyFormData.append("file", g[i]);
       }
+
+      // Append default attachments
+      this.attachments.forEach((attachment) => {
+        bodyFormData.append("file", attachment);
+      });
+
       var size = 0;
       for (let i = 0; i < g.length; i++) {
         size = size + g[i].size;

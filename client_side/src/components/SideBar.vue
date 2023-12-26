@@ -8,6 +8,9 @@
         <v-col>
           <Compose :username="username" />
         </v-col>
+        <v-col class="text-center">
+        <v-btn  color="black" @click="showFilterDialog">Filter</v-btn>
+        </v-col>
         <v-list>
           <v-list-item v-for="(link, index) in links" :key="link.text" :to="link.route">
             <v-list-item-content>
@@ -19,19 +22,30 @@
             <v-list-item-action v-if="index >= defaultLinksCount">
               <v-btn @click="renameFolder(index)">Rename</v-btn>
               <v-btn @click="deleteFolder(index)">Delete</v-btn>
+              <v-btn @click="showFilterDialog">Filter</v-btn>
             </v-list-item-action>
           </v-list-item>
         </v-list>
       </v-container>
-
-      <v-container>
-        <router-view></router-view>
-      </v-container>
     </v-main>
 
-    <!-- Dialog for renaming folders -->
+    <!-- Dialog for renaming folders or filtering emails -->
     <v-dialog v-model="renameDialog" max-width="500">
-      <v-card>
+      <v-card v-if="isFilterDialog">
+        <v-card-title>
+          Filter Emails
+        </v-card-title>
+        <v-card-text>
+          <v-select v-model="filterType" :items="filterOptions" label="Filter By"></v-select>
+          <v-text-field v-model="filterValue" placeholder="Enter filter value"></v-text-field>
+          <v-select v-model="filterFolder" :items="folderOptions" label="Select Folder"></v-select>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn @click="filterConfirmed">Filter</v-btn>
+          <v-btn @click="cancelFilter">Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+      <v-card v-else>
         <v-card-title>
           Rename Folder
         </v-card-title>
@@ -67,8 +81,15 @@ export default {
       defaultLinksCount: 5, // Number of default links
       // Dialog properties
       renameDialog: false,
+      isFilterDialog: false,
       renamingIndex: null,
       newFolderName: '',
+      // Filter dialog properties
+      filterType: 'Subject',
+      filterValue: '',
+      filterFolder: '',
+      filterOptions: ['Subject', 'Sender'],
+      folderOptions: ["Inbox", "Sent", "Drafts"], // Add more folders as needed
     };
   },
   methods: {
@@ -85,6 +106,7 @@ export default {
       // Show the rename dialog
       this.renamingIndex = index;
       this.renameDialog = true;
+      this.isFilterDialog = false;
     },
     renameConfirmed() {
       // Implement logic to rename the folder at the specified index
@@ -109,9 +131,41 @@ export default {
       // Update addedFolders array or perform any necessary action
       console.log(`Delete folder at index ${index}`);
     },
+    // New method to show the filter dialog
+    showFilterDialog() {
+      this.isFilterDialog = true;
+      this.renameDialog = true;
+    },
+    filterConfirmed() {
+      // Implement logic to filter emails based on the selected options
+      console.log('Filtering emails:');
+      console.log('Filter Type:', this.filterType);
+      console.log('Filter Value:', this.filterValue);
+      console.log('Filter Folder:', this.filterFolder);
+
+      // Close the dialog and reset values
+      this.isFilterDialog = false;
+      this.renameDialog = false;
+      this.filterType = 'Subject';
+      this.filterValue = '';
+      this.filterFolder = '';
+    },
+    cancelFilter() {
+      // Cancel the filter operation
+      this.isFilterDialog = false;
+      this.renameDialog = false;
+      this.filterType = 'Subject';
+      this.filterValue = '';
+      this.filterFolder = '';
+    },
+
   },
 };
 </script>
+
+<style>
+/* ... existing styles ... */
+</style>
 
 <style>
 #sidebar {
