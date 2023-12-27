@@ -1,70 +1,88 @@
 package com.cse.mail.Controllers;
 
-import com.cse.mail.controls.Director;
+//import com.cse.mail.controls.Director;
+import com.cse.mail.dal.model.Email;
 import com.cse.mail.dal.repository.EmailRepository;
+import com.cse.mail.dto.*;
+
+import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import java.io.IOException;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @CrossOrigin()
 @RequestMapping("/api")
 public class MailController {
-    Director director = Director.getInstance();
+//    Director director = Director.getInstance();
     @Autowired
     private EmailRepository emailrepository ;
 
-//    @PostMapping("/create Mail")
-//    public String sendMail(/*the email and it's specifications*/) {
-//
-//        return "Mail sent successfully";
-//    }
-    @PostMapping("/send mail")
-    public String sendMail() {
-        return "Mail sent successfully";
-    }
-    @PostMapping("/copy")
-    public String CopyMail(/*the email and the folder to copy to */) {
-        return "Mail Copied successfully";
-    }
-    @PostMapping("/delete mail")
-    public String DeleteMail(/*some attributes*/) {
-        return "Mail Deleted successfully";
+    Faker faker = new Faker();
+
+    @PostMapping(value = "/{username}/email/create")
+    public int createEmail(@PathVariable String username,@RequestParam("mail") String mid, @RequestBody List<MultipartFile> file) {
+        int id = (int)faker.number().randomNumber();
+//        System.out.println(emailDto);
+//        System.out.println(files);
+        // Here you would typically save the emailDto to the database
+        return id;
     }
 
-    @PostMapping("/move mail")
-    public String moveMail(/*some attributes*/) {
-        return "Mail moved successfully";
+    @PostMapping("/{username}/email/draft")
+    public int draftEmail(@PathVariable String username, @RequestBody EmailDto emailDto) {
+        int id = (int)faker.number().randomNumber();
+        System.out.println(emailDto);
+        // Here you would typically save the emailDto to the database
+        return id;
     }
 
-    @PostMapping("/filter")
-    public String filter(/*some attributes*/) {
-        return "filter applied successfully";
-    }
-    @PostMapping("/sort")
-    public String sort(/*some attributes*/) {
-        return "sort applied successfully";
-    }
-
-    @PostMapping("load mails")
-    public String loadMails(/*some attributes*/) {
-        return "mails loaded successfully";
+    @PostMapping("/{username}/email/copy")
+    public String copyEmail(@PathVariable String username, @RequestBody TransferDto transferDto) {
+        System.out.println(transferDto);
+        // Here you would typically copy the email in the database
+        return "Email copied successfully";
     }
 
 
-    @PostMapping("remove mail")
-    public String removeMail(/*some attributes*/) {
-        return "mail removed successfully";
+    @DeleteMapping("/{username}/email/delete/{emailId}")
+    public String deleteEmail(@PathVariable String username, @PathVariable int emailId) {
+        // Here you would typically delete the email from the database
+        return "Email with ID " + emailId + " deleted successfully";
     }
 
+    @PostMapping("/{username}/email/move")
+    public String moveEmail(@PathVariable String username, @RequestBody TransferDto transferEmailDto) {
+        System.out.println(transferEmailDto);
+        int id = (int)faker.number().randomNumber();
+        // Here you would typically move the email in the database
+        return "Email moved successfully with new ID " + id;
+    }
 
+    @PostMapping("/{username}/email/list")
+    public EmailsRequestDto listEmails(@PathVariable String username, @RequestBody SearchEmailDto searchEmailDto) {
+        System.out.println(searchEmailDto);
+        List<EmailDto> emails = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            List<String> receivers = new ArrayList<>();
+            for (int j = 0; j < 3; j++) {
+                receivers.add(faker.internet().emailAddress());
+            }
+            List<AttachmentDto> attachments = new ArrayList<>();
+            for (int j = 0; j < 2; j++) {
+                attachments.add(new AttachmentDto(j, faker.file().fileName(),  faker.file().fileName()));
+            }
+            emails.add(new EmailDto(i, faker.internet().emailAddress(), receivers, faker.lorem().sentence(), faker.lorem().paragraph(), LocalDateTime.now(), faker.bool().bool(), attachments, faker.number().numberBetween(1, 4)));
+        }
+        return new EmailsRequestDto(emails,3);
+    }
 
 //    @PostMapping("/multiple")
 //    public String uploadMultipleFiles(@RequestParam("files") List<MultipartFile> files) {

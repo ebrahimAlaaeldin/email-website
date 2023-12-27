@@ -4,7 +4,7 @@ package com.cse.mail.dto;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class GetEmailDto implements Serializable {
+public class SearchEmailDto implements Serializable {
     private final int userId;
     private final int folderId;
     private final String searchType;
@@ -13,7 +13,7 @@ public class GetEmailDto implements Serializable {
     private final int pageNumber;
     private final int numberOfElementsInPage;
 
-    public GetEmailDto(int userId, int folderId, String searchType, String searchFor, String sortBy, int pageNumber, int numberOfElementsInPage) {
+    public SearchEmailDto(int userId, int folderId, String searchType, String searchFor, String sortBy, int pageNumber, int numberOfElementsInPage) {
         this.userId = userId;
         this.folderId = folderId;
         this.searchType = searchType;
@@ -26,8 +26,8 @@ public class GetEmailDto implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof GetEmailDto)) return false;
-        GetEmailDto that = (GetEmailDto) o;
+        if (!(o instanceof SearchEmailDto)) return false;
+        SearchEmailDto that = (SearchEmailDto) o;
         return userId == that.userId && folderId == that.folderId && pageNumber == that.pageNumber && numberOfElementsInPage == that.numberOfElementsInPage && Objects.equals(searchType, that.searchType) && Objects.equals(searchFor, that.searchFor) && Objects.equals(sortBy, that.sortBy);
     }
 

@@ -4,17 +4,17 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-public class GetEmailsDto implements Serializable {
-    private final List<PostEmailDto> emails;
+public class EmailsRequestDto implements Serializable {
+    private final List<EmailDto> emails;
 
     private final int numberOfPages;
 
-    public GetEmailsDto(List<PostEmailDto> emails, int numberOfPages) {
+    public EmailsRequestDto(List<EmailDto> emails, int numberOfPages) {
         this.emails = emails;
         this.numberOfPages = numberOfPages;
     }
 
-    public List<PostEmailDto> getEmails() {
+    public List<EmailDto> getEmails() {
         return emails;
     }
 
@@ -25,8 +25,8 @@ public class GetEmailsDto implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof GetEmailsDto)) return false;
-        GetEmailsDto emailsDto = (GetEmailsDto) o;
+        if (!(o instanceof EmailsRequestDto)) return false;
+        EmailsRequestDto emailsDto = (EmailsRequestDto) o;
         return numberOfPages == emailsDto.numberOfPages && Objects.equals(emails, emailsDto.emails);
     }
 

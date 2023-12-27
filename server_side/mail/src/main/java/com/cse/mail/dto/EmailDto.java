@@ -8,7 +8,7 @@ import java.util.Objects;
 /**
  * A DTO for the {@link com.cse.mail.dal.model.Email} entity
  */
-public class PostEmailDto implements Serializable {
+public class EmailDto implements Serializable {
     private final int emailId;
     private final String sender;
     private final List<String> receivers;
@@ -19,7 +19,7 @@ public class PostEmailDto implements Serializable {
     private final List<AttachmentDto> attachments;
     private final int priority;
 
-    public PostEmailDto(int emailId, String sender, List<String> receivers, String subject, String body, LocalDateTime timestamp, boolean isDraft, List<AttachmentDto> attachments, int priority) {
+    public EmailDto(int emailId, String sender, List<String> receivers, String subject, String body, LocalDateTime timestamp, boolean isDraft, List<AttachmentDto> attachments, int priority) {
         this.emailId = emailId;
         this.sender = sender;
         this.receivers = receivers;
@@ -71,7 +71,7 @@ public class PostEmailDto implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PostEmailDto entity = (PostEmailDto) o;
+        EmailDto entity = (EmailDto) o;
         return Objects.equals(this.emailId, entity.emailId) &&
                 Objects.equals(this.sender, entity.sender) &&
                 Objects.equals(this.receivers, entity.receivers) &&

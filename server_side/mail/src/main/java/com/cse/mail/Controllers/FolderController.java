@@ -1,6 +1,6 @@
 package com.cse.mail.Controllers;
 
-import com.cse.mail.controls.Director;
+//import com.cse.mail.controls.Director;
 import com.cse.mail.dal.repository.FolderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin()
 @RequestMapping("/api")
 public class FolderController {
-    Director director = Director.getInstance();
+//    Director director = Director.getInstance();
     @Autowired
     private FolderRepository folderrepository ;
 
