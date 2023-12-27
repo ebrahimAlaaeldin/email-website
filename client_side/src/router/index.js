@@ -54,7 +54,7 @@ const routes = [
     component: SignIn
   },
   {
-    path:'/search/:username/:searchby/:searchfor/:sortby/:pagenumber/:FolderName',
+    path:'/search/:username/:searchby/:searchfor/:sortby/:pagenumber/:FolderId',
     name:'search',
     component: Home
   }

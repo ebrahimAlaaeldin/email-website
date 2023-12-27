@@ -60,13 +60,13 @@ export default {
   },
   data() {
     return {
-      searchText: "",
-      selectedFolder: "", // New property for folder selection
-      folderOptions: ["Inbox", "Sent", "Drafts"], // Add more folders as needed
-      searchCriteria: "Subject",
-      searchCriteriaOptions: ["Subject", "Sender Email", "Priority"],
-      sortCriteria: "Date",
-      sortCriteriaOptions: ["Date", "Sender Email", "Priority", "Subject"],
+      searchText: " ",
+      selectedFolder: "Inbox", // New property for folder selection
+      folderOptions: Object.values(this.$store.getters.getHashMap).map(obj => obj.text), // Add more folders as needed
+      searchCriteria: "subject",
+      searchCriteriaOptions: ["sender", "receivers", "subject","body","timestamp","priority"],
+      sortCriteria: "timestamp",
+      sortCriteriaOptions: ["sender", "subject","body","timestamp","priority"],
       pageNumber: 1,
       currentPage: 1,
     };
@@ -87,6 +87,7 @@ export default {
         this.startIndex + this.currentPage
       );
     },
+
    currentPage: {
       get() {
         return this.$store.getters.getPageNumber;
@@ -111,7 +112,7 @@ export default {
       console.log("sort criteria from store:", this.$store.getters.getSortCriteria);
       // Redirect to /search/username route
       this.$router.push({
-        path: `/search/${this.username}/${this.searchCriteria}/${this.searchText}/${this.sortCriteria}/${this.pageNumber}/${this.selectedFolder}`,
+        path: `/search/${this.username}/${this.searchCriteria}/${this.searchText}/${this.sortCriteria}/${this.pageNumber}/${this.folderOptions.indexOf(this.selectedFolder)}`,
       });
 
       // Additional logic (if needed)

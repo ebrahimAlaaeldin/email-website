@@ -67,7 +67,7 @@ import Compose from './Compose.vue';
 import NewFolder from './NewFolder.vue';
 import {computed} from 'vue';
 import { useStore } from 'vuex';
-
+import axios from 'axios';
 export default {
     setup() {
     const store = useStore();
@@ -75,37 +75,15 @@ export default {
 
     const setHashMap = () => {
       const newHashMap = { key1: 'value1', key2: 'value2' };
+      console.log('Setting hash map:', newHashMap);
       store.dispatch('updateHashMap', newHashMap);
       console.log('Hash Map:', store.state.hashMap);  
     };
 
-      const loadFoldersFromServer = async () => {
-      // Make an API request to fetch folders from the server
-      try {
-        const response = await fetch('/api/folders'); // Replace with your actual API endpoint
-        const data = await response.json();
-
-        // Assuming the server returns an array of folder names
-        const folders = Array.isArray(data) ? data : [];
-
-        // Update the component's links array with the loaded folders
-        this.links = [
-          ...folders.map((folderName) => ({
-            icon: 'mdi-folder',
-            text: folderName,
-            route: `folder/${folderName}/${this.username}`,
-          })),
-        ];
-
-        console.log('Folders loaded from the server:', folders);
-      } catch (error) {
-        console.error('Error loading folders from the server:', error);
-      }
-    };
+  
 
     return {
       setHashMap,
-      loadFoldersFromServer,
     };
   },
   
@@ -115,10 +93,6 @@ export default {
     return {
       menu: true,
     links: [
-      { icon: 'mdi-inbox', text: 'Inbox', route: `/folder/inbox/${this.username}` },
-      { icon: 'mdi-send', text: 'Sent', route: `/folder/sent/${this.username}` },
-      { icon: 'mdi-delete', text: 'Trash', route: `/folder/trash/${this.username}` },
-      { icon: 'mdi-email', text: 'Draft', route: `/folder/draft/${this.username}` },
       { icon: 'mdi-account', text: 'Contact', route: `/contact/${this.username}` },
     ],
       defaultLinksCount: 5, // Number of default links
@@ -135,7 +109,33 @@ export default {
       folderOptions: ["Inbox", "Sent", "Drafts"], // Add more folders as needed
     };
   },
+   mounted() {
+    // Call your function when the component is mounted
+    this.loadData(); // Call the function to load data on mount
+  },
+
   methods: {
+    // Add a method to load data using axios
+    loadData() {
+      axios.get('http://192.168.237.205:8080/api/mohamed/folder/list')
+        .then(response => {
+          // Assuming response.data is an array of objects with properties like text and route
+          const newData = response.data.map(item => ({
+            text: item.folderName,
+            route: `/folder/${item.folderName}/${this.username}`,
+          }));
+
+          // Update the links array with the received data
+          this.links = [...this.links, ...newData];
+
+          console.log('Updated links:', this.links);
+          this.$store.dispatch('updateHashMap', this.links);
+        
+        })
+        .catch(error => {
+          console.error('Error loading data:', error);
+        });
+    },
     updateLinks(folderName) {
       console.log('Updating links with folder:', folderName);
 

@@ -1,6 +1,5 @@
 <template>
   <v-app>
-  
     <Header :username="username" />
 
     <!-- Sidebar -->
@@ -32,13 +31,19 @@
       <v-container class="pa-0">
         <v-row>
           <!-- Inside the v-col for contacts -->
-        <v-col v-if="isContactRoute" v-for="(contact, index) in contacts" :key="index" class="mb-4">
-          <v-card :class="getContactCardClass(index)">
-            <v-card-title>{{ contact.name }}</v-card-title>
-            <v-card-subtitle>{{ contact.email }}</v-card-subtitle>
-            <v-btn @click="toggleContactSelect(index)">Select</v-btn> <!-- Add select button -->
-          </v-card>
-        </v-col>
+          <v-col
+            v-if="isContactRoute"
+            v-for="(contact, index) in contacts"
+            :key="index"
+            class="mb-4"
+          >
+            <v-card :class="getContactCardClass(index)">
+              <v-card-title>{{ contact?.name }}</v-card-title>
+              <v-card-text>{{ contact?.contactEmails?.join(', ') }}</v-card-text>
+              <br>
+              <v-btn @click="toggleContactSelect(index)">Select</v-btn>
+            </v-card>
+          </v-col>
 
           <v-col
             v-if="!isContactRoute"
@@ -47,19 +52,19 @@
             class="mb-4"
           >
             <v-card :class="getCardClass(index)">
-              <v-card-title>{{ mail.subject }}</v-card-title>
-              <v-card-subtitle>{{ mail.sender }}</v-card-subtitle>
-              <v-card-text>{{ mail.content }}</v-card-text>
+              <v-card-title>{{ mail?.subject }}</v-card-title>
+              <v-card-subtitle>{{ mail?.sender }}</v-card-subtitle>
+              <v-card-text>{{ mail?.content }}</v-card-text>
               <v-list>
                 <v-list-item
-                  v-for="(attachment, attachmentIndex) in mail.attachments"
+                  v-for="(attachment, attachmentIndex) in mail?.attachments"
                   :key="attachmentIndex"
                 >
                   <v-list-item-icon>
                     <v-icon>mdi-attachment</v-icon>
                   </v-list-item-icon>
                   <v-list-item-content>
-                    {{ attachment.name }}
+                    {{ attachment?.filename }}
                   </v-list-item-content>
                   <v-list-item-action>
                     <v-btn @click="downloadAttachment(attachment)"
@@ -83,7 +88,7 @@
                   :defaultSubject="mail?.subject?.toString() || ''"
                   :defaultContent="mail?.content?.toString() || ''"
                   :defaultPriority="mail?.priority?.toString() || ''"
-                  :defaultAttachments="mail.attachments || []"
+                  :defaultAttachments="mail?.attachments || []"
                 />
               </v-card-actions>
             </v-card>
@@ -93,21 +98,21 @@
         <!-- Email Details Dialog -->
         <v-dialog v-model="dialogVisible" max-width="600">
           <v-card>
-            <v-card-title>{{ selectedMail.subject }}</v-card-title>
-            <v-card-subtitle>{{ selectedMail.sender }}</v-card-subtitle>
-            <v-card-text>{{ selectedMail.content }}</v-card-text>
+            <v-card-title>{{ selectedMail?.subject }}</v-card-title>
+            <v-card-subtitle>{{ selectedMail?.sender }}</v-card-subtitle>
+            <v-card-text>{{ selectedMail?.content }}</v-card-text>
             <v-list>
               <v-list-item
                 v-for="(
                   attachment, attachmentIndex
-                ) in selectedMail.attachments"
+                ) in selectedMail?.attachments"
                 :key="attachmentIndex"
               >
                 <v-list-item-icon>
                   <v-icon>mdi-attachment</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  {{ attachment.name }}
+                  {{ selectedMail?.attachments[attachmentIndex].filename }}
                 </v-list-item-content>
                 <v-list-item-action>
                   <v-btn @click="downloadAttachment(attachment)"
@@ -143,7 +148,6 @@
       </v-container>
     </v-main>
     <!-- At the bottom of the template -->
-
   </v-app>
 </template>
 
@@ -151,122 +155,75 @@
 import Navbar from "@/components/SideBar.vue";
 import Header from "@/components/Header";
 import Compose from "@/components/Compose.vue";
-import { mapGetters } from 'vuex';
-
+import axios from "axios";
+import VueCookies from "vue-cookies";
+import { mapGetters } from "vuex";
+import { get_email } from "./classes.js";
 export default {
+  mounted() {
+    // Retrieve userId from cookies
+    this.userId = VueCookies.get("userId");
+    if (this.userId) {
+      console.log("Retrieved userId from cookies:", this.userId);
+    } else {
+      console.log("UserId not found in cookies.");
+    }
+  },
   watch: {
-    '$route': function (to, from) {
+    $route: function (to, from) {
+      this.mails = [];
+      this.conatcts=[]
       // This will be called whenever the route changes
-      console.log('Route changed:', to, from);
-      if (to.params.foldername === 'inbox') {
-        console.log('Inbox route');
-      }
-      else if (to.params.foldername === 'trash') {
-        console.log('Trash route');
-      }
-      else if (to.params.foldername === 'draft') {
-        console.log('Draft route');
-      }
-      else if (to.name === 'contact') {
-        console.log('Contact route');
-      }
-      else if (to.params.foldername === 'sent') {
-        console.log('Sent route');
-      }
-      else if (to.params.foldername !== 'inbox' && to.params.foldername !== 'trash' && to.params.foldername !== 'draft' && to.name !== 'contact' && to.params.foldername !== 'sent' ){
-        console.log('Folder route');
+      console.log("Route changed:", to, from);
+      if (to.params.foldername?.toLowerCase() === "inbox") {
+        this.load_mails(to);
+        console.log("Inbox route");
+      } else if (to.params.foldername?.toLowerCase() === "trash") {
+        this.load_mails(to);
+        console.log("Trash route");
+      } else if (to.params.foldername?.toLowerCase() === "draft") {
+        this.load_mails(to);
+        console.log("Draft route");
+      } else if (to.name === "contact") {
+        this.load_conatcts();
+        console.log("Contact route");
+      } else if (to.params.foldername?.toLowerCase() === "sent") {
+        this.load_mails(to);
+        console.log("Sent route");}
+      else if (to.name=="search")
+      {
+        this.search_mails();
+        console.log("Search route");
+      
+      } else if (
+        to.params.foldername?.toLowerCase() !== "inbox" &&
+        to.params.foldername?.toLowerCase() !== "trash" &&
+        to.params.foldername?.toLowerCase() !== "draft" &&
+        to.name !== "contact" &&
+        to.params.foldername?.toLowerCase() !== "sent"
+      ) {
+        this.load_mails(to);
+        console.log("Folder route");
       }
     },
-    'getHashMap': function (newHashMap) {
+    getHashMap: function (newHashMap) {
       // Log the hashmap whenever it changes
-      console.log('Hashmap changed:', newHashMap);
-    }
+      console.log("Hashmap changed:", newHashMap);
+    },
   },
   name: "Inbox",
   components: { Navbar, Header, Compose },
   data() {
     return {
       username: this.$route.params.username,
-      folders: [
-        { name: "Folder1" },
-        { name: "Folder2" },
-        { name: "Folder3" },
-        { name: "Folder4" },
-        { name: "Folder5" },
-      ],
+      folders: [],
       isCopyToDialogOpen: false,
       selectedFolder: null,
-      mails: [
-        {
-          subject: "Subject 1",
-          sender: "Sender 1",
-          content: "Content 1",
-          attachments: [
-            {
-              name: "Attachment1.txt",
-              content: "File content for Attachment1",
-            },
-            {
-              name: "Attachment2.txt",
-              content: "File content for Attachment2",
-            },
-          ],
-        },
-        {
-          subject: "Subject 2",
-          sender: "Sender 2",
-          content: "Content 2",
-          attachments: [
-            {
-              name: "Attachment3.txt",
-              content: "File content for Attachment3",
-            },
-          ],
-        },
-        {
-          subject: "Subject 3",
-          sender: "Sender 3",
-          content: "Content 3",
-        },
-        {
-          subject: "Subject 4",
-          sender: "Sender 4",
-          content: "Content 4",
-          attachments: [
-            {
-              name: "Attachment4.txt",
-              content: "File content for Attachment4",
-            },
-          ],
-        },
-        {
-          subject: "Subject 5",
-          sender: "Sender 5",
-          content: "Content 5",
-        },
-      ],
-      contacts: [
-        {
-          name: "Contact 1",
-          email: "hi@fd.com",
-        },
-        {
-          name: "Contact 2",
-          email: "HDJ",
-        },
-        {
-          name: "Contact 3",
-          email: "HDJ",
-        },
-        {
-          name: "Contact 4",
-          email: "HDJ",
-        },
-        {
-          name: "Contact 5",
-          email: "HDJ",
-        },
-      ],
+      mails: [],
+      contacts: 
+      [
+        ],
+      
       select: [],
       selected_contacts: [],
       dialogVisible: false,
@@ -277,21 +234,128 @@ export default {
     };
   },
   computed: {
-     ...mapGetters(['getHashMap']),
+    ...mapGetters(["getHashMap"]),
     folderNames() {
       return this.folders.map((folder) => folder.name);
     },
     isTrashRoute() {
-      return this.$route.name === this.trashRouteName;
+      return (
+        this.$route.params.foldername?.toLowerCase() === this.trashRouteName
+      );
     },
     isContactRoute() {
+      console.log("Route name:", this.$route.name);
       return this.$route.name === this.contactRouteName;
     },
     isDraftRoute() {
-      return this.$route.params.foldername === this.draftRouteName;
+      return (
+        this.$route.params.foldername?.toLowerCase() === this.draftRouteName
+      );
     },
   },
   methods: {
+    search_mails()
+    {
+      let searchfor=this.$route.params.searchfor
+      let searchby=this.$route.params.searchby
+      let fid=this.$route.params.FolderId
+      const emailObject = new get_email(
+        VueCookies.get("userId"),
+        fid,
+        searchby,
+        searchfor,
+        this.$store.getters.getSortCriteria,
+        this.$store.getters.getPageNumber,
+        10
+      );
+        const apiUrl = "http://192.168.237.205:8080/api/mohamed/email/list";
+
+      // Send the POST request with the object as the request payload
+      axios
+        .post(apiUrl, emailObject)
+        .then((response) => {
+          // Handle the response
+          const responseData = response.data;
+
+          this.mails = responseData.emails;
+          const numberOfPages = responseData.numberOfPages;
+
+          console.log("Response:", response.data);
+          console.log("attachment1", this.mails[0].attachments[0].filename);
+        })
+        .catch((error) => {
+          // Handle errors
+          console.error("Error:", error);
+        });
+    },
+    load_conatcts() {
+      this.mails = [];
+      this.conatcts = [];
+      // Define the API endpoint where you want to send the POST request
+      const apiUrl = "http://192.168.237.205:8080/api/mohamed/contacts/list";
+
+      // Send the POST request with the object as the request payload
+      axios
+        .get(apiUrl)
+        .then((response) => {
+          // Handle the response
+          const responseData = response.data;
+
+          this.contacts = responseData;
+          console.log("Response:", response.data);
+          console.log("contacts", this.contacts[0].name);
+        })
+        .catch((error) => {
+          // Handle errors
+          console.error("Error:", error);
+        });
+    },
+    load_mails(to) {
+      this.conatcts = [];
+      console.log("loading mails");
+      console.log("folders", this.folders);
+      this.folders = this.$store.getters.getHashMap;
+      const keyToCheck = to.params.foldername;
+
+      if (this.folders[keyToCheck] !== undefined) {
+        console.log(`${keyToCheck} exists in the hashmap.`);
+      } else {
+        console.log(`${keyToCheck} does not exist in the hashmap.`);
+      }
+      let fid = this.folders[keyToCheck];
+      // Create an instance of the get_email class
+
+      const emailObject = new get_email(
+        VueCookies.get("userId"),
+        fid,
+        null,
+        null,
+        this.$store.getters.getSortCriteria,
+        this.$store.getters.getPageNumber,
+        10
+      );
+
+      // Define the API endpoint where you want to send the POST request
+      const apiUrl = "http://192.168.237.205:8080/api/mohamed/email/list";
+
+      // Send the POST request with the object as the request payload
+      axios
+        .post(apiUrl, emailObject)
+        .then((response) => {
+          // Handle the response
+          const responseData = response.data;
+
+          this.mails = responseData.emails;
+          const numberOfPages = responseData.numberOfPages;
+
+          console.log("Response:", response.data);
+          console.log("attachment1", this.mails[0].attachments[0].filename);
+        })
+        .catch((error) => {
+          // Handle errors
+          console.error("Error:", error);
+        });
+    },
     toggleSelect(index) {
       this.select = Object.assign([], this.select, {
         [index]: !this.select[index],
@@ -301,8 +365,6 @@ export default {
       return this.select[index] ? "selected-card" : "";
     },
     openDialog(mail) {
-      const hashMapFromStore = this.getHashMap;
-    console.log('HashMap from store:', hashMapFromStore);
       this.selectedMail = mail;
       this.dialogVisible = true;
     },
@@ -345,20 +407,17 @@ export default {
       // Example: You might emit an event or update a state to open the Compose component
     },
     toggleContactSelect(index) {
-
       this.selected_contacts = Object.assign([], this.selected_contacts, {
         [index]: !this.selected_contacts[index],
-      });    
-      console.log(" Selected contacts:", this.selected_contacts)
-      },
+      });
+      console.log(" Selected contacts:", this.selected_contacts);
+    },
     getContactCardClass(index) {
-
       return this.selected_contacts[index] ? "selected-contact" : "";
     },
   },
 };
 </script>
-
 
 <style scoped>
 .selected-card,

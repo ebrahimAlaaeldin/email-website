@@ -48,7 +48,7 @@
                 <h4>Attachments:</h4>
                 <ul>
                   <li v-for="(attachment, index) in defaultAttachments" :key="index">
-                    <a :href="attachment.url" target="_blank" download>{{ attachment.name }}</a>
+                    <a :href="attachment.path" target="_blank" download>{{ attachment.filename }}</a>
                   </li>
                 </ul>
               </v-col>
@@ -162,16 +162,17 @@ export default {
           null,
           this.isDraft
         );
-
+let g = document.getElementById("choose").files;
         this.attachments.forEach((attachment) => {
           g.append(attachment);
         });
-
+        let url=`http://192.168.237.205:8080/api/${this.username}/email/create`
         bodyFormData.append("file", g[0]);
         if (this.fromDraft) {
+          url=`http://192.168.237.205:8080/api/${this.username}/email/edit`
           bodyFormData.append("emailId", mail.id);
         } else {
-          bodyFormData.append("emailId", null);
+          bodyFormData.append("emailId", -1);
         }
         bodyFormData.append("sender", mail.sender);
         bodyFormData.append("receivers", JSON.stringify(mail.receivers));
@@ -193,7 +194,7 @@ export default {
             alert("Uploading high-size attachments will take a few moments. Press OK to continue.");
           }
           mail.attachments = g;
-          fetch(`http://192.168.237.205:8080/api/${this.username}/email/create`, {
+          fetch(url, {
             method: "POST",
             body: bodyFormData,
           })
@@ -248,16 +249,18 @@ export default {
           null,
           this.isDraft
         );
-
+let g = document.getElementById("choose").files;
         this.attachments.forEach((attachment) => {
           g.append(attachment);
         });
 
         bodyFormData.append("file", g[0]);
+        let url="http://192.168.237.205:8080/api/${this.username}/email/create"
         if (this.fromDraft) {
+          url="http://192.168.237.205:8080/api/${this.username}/email/edit"
           bodyFormData.append("emailId", mail.id);
         } else {
-          bodyFormData.append("emailId", null);
+          bodyFormData.append("emailId", -1);
         }
         bodyFormData.append("sender", mail.sender);
         bodyFormData.append("receivers", JSON.stringify(mail.receivers));
@@ -279,7 +282,7 @@ export default {
             alert("Uploading high-size attachments will take a few moments. Press OK to continue.");
           }
           mail.attachments = g;
-          fetch(`http://192.168.237.205:8080/api/${this.username}/email/edit`, {
+          fetch(url, {
             method: "POST",
             body: bodyFormData,
           })
