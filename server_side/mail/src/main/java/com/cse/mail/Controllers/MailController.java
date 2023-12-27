@@ -19,15 +19,15 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping("/api")
+@RequestMapping("/api/{username}/email")
 public class MailController {
 //    Director director = Director.getInstance();
     @Autowired
-    private EmailRepository emailrepository ;
+    private EmailRepository emailrepository;
 
     Faker faker = new Faker();
 
-    @PostMapping(value = "/{username}/email/create")
+    @PostMapping(value = "/create")
     public int createEmail(@PathVariable String username,@RequestParam("file") MultipartFile file, @ModelAttribute EmailDto emailDto) {
         int id = (int)faker.number().randomNumber();
 //        System.out.println(emailDto);
@@ -36,7 +36,7 @@ public class MailController {
         return id;
     }
 
-    @PostMapping("/{username}/email/draft")
+    @PostMapping("/draft")
     public int draftEmail(@PathVariable String username, @RequestBody EmailDto emailDto) {
         int id = (int)faker.number().randomNumber();
         System.out.println(emailDto);
@@ -44,7 +44,7 @@ public class MailController {
         return id;
     }
 
-    @PostMapping("/{username}/email/copy")
+    @PostMapping("/copy")
     public String copyEmail(@PathVariable String username, @RequestBody TransferDto transferDto) {
         System.out.println(transferDto);
         // Here you would typically copy the email in the database
@@ -52,13 +52,13 @@ public class MailController {
     }
 
 
-    @DeleteMapping("/{username}/email/delete/{emailId}")
-    public String deleteEmail(@PathVariable String username, @PathVariable int emailId) {
+    @DeleteMapping("/delete")
+    public String deleteEmail(@PathVariable String username, @RequestParam int emailId) {
         // Here you would typically delete the email from the database
         return "Email with ID " + emailId + " deleted successfully";
     }
 
-    @PostMapping("/{username}/email/move")
+    @PostMapping("/move")
     public String moveEmail(@PathVariable String username, @RequestBody TransferDto transferEmailDto) {
         System.out.println(transferEmailDto);
         int id = (int)faker.number().randomNumber();
@@ -66,7 +66,7 @@ public class MailController {
         return "Email moved successfully with new ID " + id;
     }
 
-    @PostMapping("/{username}/email/list")
+    @PostMapping("/list")
     public EmailsRequestDto listEmails(@PathVariable String username, @RequestBody SearchEmailDto searchEmailDto) {
         System.out.println(searchEmailDto);
         List<EmailDto> emails = new ArrayList<>();
@@ -79,7 +79,7 @@ public class MailController {
             for (int j = 0; j < 2; j++) {
                 attachments.add(new AttachmentDto(j, faker.file().fileName(),  faker.file().fileName()));
             }
-            emails.add(new EmailDto(i, faker.internet().emailAddress(), receivers, faker.lorem().sentence(), faker.lorem().paragraph(), "dsad", faker.bool().bool(), faker.number().numberBetween(1, 4)));
+            emails.add(new EmailDto(i, faker.internet().emailAddress(), receivers, faker.lorem().sentence(), faker.lorem().paragraph(), "1202022", false,attachments, faker.number().numberBetween(1, 4)));
         }
         return new EmailsRequestDto(emails,3);
     }
