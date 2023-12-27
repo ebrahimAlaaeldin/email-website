@@ -1,7 +1,6 @@
 package com.cse.mail.dto;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -67,38 +66,6 @@ public class EmailDto implements Serializable {
 
     public int getPriority() {
         return priority;
-    }
-
-    public void setEmailId(int emailId) {
-        this.emailId = emailId;
-    }
-
-    public void setSender(String sender) {
-        this.sender = sender;
-    }
-
-    public void setReceivers(List<String> receivers) {
-        this.receivers = receivers;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public void setDraft(boolean draft) {
-        isDraft = draft;
-    }
-
-    public void setPriority(int priority) {
-        this.priority = priority;
     }
 
     @Override

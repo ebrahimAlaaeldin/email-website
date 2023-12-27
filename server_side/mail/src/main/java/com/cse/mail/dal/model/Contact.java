@@ -51,18 +51,6 @@ public class Contact {
         return contactEmails;
     }
 
-    public void setContactEmails(List<String> contactEmails) {
-        this.contactEmails = contactEmails;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setContactUser(User contactUser) {
-        this.contactUser = contactUser;
-    }
-
     public int getId() {
         return id;
     }

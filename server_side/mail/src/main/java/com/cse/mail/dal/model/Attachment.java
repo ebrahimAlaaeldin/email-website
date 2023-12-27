@@ -13,7 +13,6 @@ public class Attachment {
             updatable = false
     )
     private int id;
-
     private String path;
     private String filename;
 
@@ -21,8 +20,28 @@ public class Attachment {
 
     }
 
+    
+
     public Attachment(String path, String filename) {
         this.path = path;
         this.filename = filename;
+    }
+
+
+
+    public int getId() {
+        return id;
+    }
+
+
+
+    public String getPath() {
+        return path;
+    }
+
+
+
+    public String getFilename() {
+        return filename;
     }
 }

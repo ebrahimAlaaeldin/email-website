@@ -1,7 +1,5 @@
 package com.cse.mail.dto;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.Serializable;
 import java.util.Objects;
 
