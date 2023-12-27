@@ -16,12 +16,12 @@ public class EmailDto implements Serializable {
     private  String body;
     private  String timestamp;
     private  boolean isDraft;
-//    private final List<AttachmentDto> attachments;
+    private List<AttachmentDto> attachments;
     private  int priority;
 
     public EmailDto() {}
 
-    public EmailDto(int emailId, String sender, List<String> receivers, String subject, String body, String timestamp, boolean isDraft, int priority) {
+    public EmailDto(int emailId, String sender, List<String> receivers, String subject, String body, String timestamp, boolean isDraft, List<AttachmentDto> attachments,int priority) {
         this.emailId = emailId;
         this.sender = sender;
         this.receivers = receivers;
@@ -29,7 +29,7 @@ public class EmailDto implements Serializable {
         this.body = body;
         this.timestamp = timestamp;
         this.isDraft = isDraft;
-//        this.attachments = attachments;
+        this.attachments = attachments;
         this.priority = priority;
     }
 
@@ -61,9 +61,9 @@ public class EmailDto implements Serializable {
         return isDraft;
     }
 
-//    public List<AttachmentDto> getAttachments() {
-//        return attachments;
-//    }
+    public List<AttachmentDto> getAttachments() {
+        return attachments;
+    }
 
     public int getPriority() {
         return priority;
@@ -95,6 +95,10 @@ public class EmailDto implements Serializable {
 
     public void setDraft(boolean draft) {
         isDraft = draft;
+    }
+
+    public void setAttachments(List<AttachmentDto> attachments) {
+        this.attachments = attachments;
     }
 
     public void setPriority(int priority) {
@@ -132,7 +136,7 @@ public class EmailDto implements Serializable {
                 "body = " + body + ", " +
                 "timestamp = " + timestamp + ", " +
                 "isDraft = " + isDraft + ", " +
-//                "attachments = " + attachments + ", " +
+                "attachments = " + attachments + ", " +
                 "priority = " + priority + ")";
     }
 }
