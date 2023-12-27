@@ -19,25 +19,14 @@ public class TransferDto {
         return folderIdSource;
     }
 
-    public void setFolderIdSource(int folderIdSource) {
-        this.folderIdSource = folderIdSource;
-    }
-
     public int getFolderIdDestination() {
         return folderIdDestination;
     }
-
-    public void setFolderIdDestination(int folderIdDestination) {
-        this.folderIdDestination = folderIdDestination;
-    }
-
     public List<Integer> getEmailIds() {
         return emailIds;
     }
 
-    public void setEmailIds(List<Integer> emailIds) {
-        this.emailIds = emailIds;
-    }
+
 
     @Override
     public boolean equals(Object o) {

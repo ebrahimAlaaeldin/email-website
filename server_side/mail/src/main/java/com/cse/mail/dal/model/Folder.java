@@ -15,10 +15,6 @@ public class Folder {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     @ManyToOne
     private User user;
 
@@ -71,4 +67,15 @@ public class Folder {
 
     @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Filter> filters;
+
+    public Folder(User user, String folderName, boolean isRemovable, boolean isRenamable, List<Email> emails,
+            List<Filter> filters) {
+        this.user = user;
+        this.folderName = folderName;
+        this.isRemovable = isRemovable;
+        this.isRenamable = isRenamable;
+        this.emails = emails;
+        this.filters = filters;
+    }
+    
 }

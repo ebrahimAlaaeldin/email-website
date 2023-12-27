@@ -56,4 +56,41 @@ public class Email {
     private List<Attachment> attachments;
 
     private int priority;
+
+    public int getId() {
+        return id;
+    }
+
+    public User getSender() {
+        return sender;
+    }
+
+    public List<User> getReceivers() {
+        return receivers;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public boolean isDraft() {
+        return isDraft;
+    }
+
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+    
 }
