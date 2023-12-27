@@ -14,12 +14,21 @@ public class FolderAdapter {
 
     public Folder dtoToEntity(FolderDto dto) {
         Folder folder;
-        folder = new FolderBuilder().setFolderName(dto.getFolderName()).setFolderName(dto.getFolderName()).setIsRemovable(dto.getIsRemovable()).setIsRenamable(dto.getIsRenamable()).build();
-        return folder;
+        if(dto.getFolderId() == -1 ){
+            folder = new FolderBuilder().setFolderName(dto.getFolderName()).setIsRemovable(dto.getIsRemovable()).setIsRenamable(dto.getIsRenamable()).build();
+            return folder;
+        }
+        else{folder = folderRepository.findById(dto.getFolderId()).orElse(null);
+            folder.setFolderName(dto.getFolderName());
+            folder.setRemovable(dto.getIsRemovable());
+            folder.setRenamable(dto.getIsRenamable());
+            return folder;
+        }
+
     }
 
     public  FolderDto entityToDto(Folder folder) {
-        
+
         FolderDto dto = new FolderDto(folder.getId(), folder.getFolderName(), folder.isRemovable(), folder.isRenamable());
         return dto;
     }

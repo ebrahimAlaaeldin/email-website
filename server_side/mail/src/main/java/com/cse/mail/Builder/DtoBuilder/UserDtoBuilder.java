@@ -10,6 +10,10 @@ public class UserDtoBuilder {
         this.username = username;
         return this;
     }
+    public UserDtoBuilder setUserId(int userId) {
+        this.userId = userId;
+        return this;
+    }
     
     public UserDto build() {
 

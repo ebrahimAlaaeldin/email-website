@@ -13,7 +13,7 @@ public class UserAdapter {
     private UserRepository userRepository;
 
     public User dtoToEntity(UserDto dto) {
-        if(dto.getUserId() == 0 ){
+        if(dto.getUserId() == -1 ){
             User user = new UserBuilder().setUsername(dto.getUsername()).build();
             return user;
         }
@@ -27,7 +27,7 @@ public class UserAdapter {
 
     public static UserDto entityToDto(User user) {
         
-        UserDto dto = new UserDtoBuilder().setUsername(user.getUsername()).build();
+        UserDto dto = new UserDtoBuilder().setUsername(user.getUsername()).setUserId(user.getId()).build();
       
         return dto;
     }
