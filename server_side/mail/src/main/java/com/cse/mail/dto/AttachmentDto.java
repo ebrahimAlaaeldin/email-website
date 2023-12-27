@@ -1,5 +1,7 @@
 package com.cse.mail.dto;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -10,6 +12,7 @@ public class AttachmentDto implements Serializable {
     private final int attachmentId;
     private final String path;
     private final String filename;
+
 
     public AttachmentDto(int attachmentId, String path, String filename) {
         this.attachmentId = attachmentId;

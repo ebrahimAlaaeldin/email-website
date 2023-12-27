@@ -38,6 +38,9 @@ public class MailApplication {
             }
             user.setContacts(contacts);
             User createdUser = userRepository.save(user);
+            createdUser.getContacts().remove(1);
+            userRepository.save(createdUser);
+//            System.out.println(createdUser.getContacts());
         };
     }
     public void customize(ConfigurableWebServerFactory factory) {
