@@ -7,7 +7,7 @@ export  class User{
 }
 
 export class PostEmailDto{
-    constructor(Mid,From,To,Subject,Body,Date,Priority,Attachment){
+    constructor(Mid,From,To,Subject,Body,Date,Priority,Attachment,isDraft){
         this.emailId=Mid
         this.sender=From
         this.receivers=To

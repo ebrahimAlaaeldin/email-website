@@ -7,7 +7,7 @@
           <v-btn @click="setHashMap">Set Hash Map</v-btn>
         </v-col>
         <v-col>
-          <Compose :username="username" />
+            <Compose :username="username" :fromDraft="false" />
         </v-col>
         <v-col class="text-center">
         <v-btn  color="black" @click="showFilterDialog">Filter</v-btn>
@@ -71,29 +71,56 @@ import { useStore } from 'vuex';
 export default {
     setup() {
     const store = useStore();
-    
+
+
     const setHashMap = () => {
       const newHashMap = { key1: 'value1', key2: 'value2' };
       store.dispatch('updateHashMap', newHashMap);
       console.log('Hash Map:', store.state.hashMap);  
     };
 
+      const loadFoldersFromServer = async () => {
+      // Make an API request to fetch folders from the server
+      try {
+        const response = await fetch('/api/folders'); // Replace with your actual API endpoint
+        const data = await response.json();
+
+        // Assuming the server returns an array of folder names
+        const folders = Array.isArray(data) ? data : [];
+
+        // Update the component's links array with the loaded folders
+        this.links = [
+          ...folders.map((folderName) => ({
+            icon: 'mdi-folder',
+            text: folderName,
+            route: `folder/${folderName}/${this.username}`,
+          })),
+        ];
+
+        console.log('Folders loaded from the server:', folders);
+      } catch (error) {
+        console.error('Error loading folders from the server:', error);
+      }
+    };
+
     return {
       setHashMap,
+      loadFoldersFromServer,
     };
   },
+  
   components: { Compose, NewFolder },
   props: { username: String, navigation: String },
   data() {
     return {
       menu: true,
-      links: [
-        { icon: 'mdi-inbox', text: 'Inbox', route: '/inbox/' + this.username },
-        { icon: 'mdi-send', text: 'Sent', route: '/sent/' + this.username },
-        { icon: 'mdi-delete', text: 'Trash', route: '/trash/' + this.username },
-        { icon: 'mdi-email', text: 'Draft', route: '/draft/' + this.username },
-        { icon: 'mdi-account', text: 'Contact', route: '/contact/' + this.username },
-      ],
+    links: [
+      { icon: 'mdi-inbox', text: 'Inbox', route: `/folder/inbox/${this.username}` },
+      { icon: 'mdi-send', text: 'Sent', route: `/folder/sent/${this.username}` },
+      { icon: 'mdi-delete', text: 'Trash', route: `/folder/trash/${this.username}` },
+      { icon: 'mdi-email', text: 'Draft', route: `/folder/draft/${this.username}` },
+      { icon: 'mdi-account', text: 'Contact', route: `/contact/${this.username}` },
+    ],
       defaultLinksCount: 5, // Number of default links
       // Dialog properties
       renameDialog: false,
@@ -111,11 +138,29 @@ export default {
   methods: {
     updateLinks(folderName) {
       console.log('Updating links with folder:', folderName);
+
+      // Access the Vuex store
+      const hashmap = this.$store.getters.getHashMap;
+
+      if (folderName in hashmap) {
+        // Do something if the folderName is already in the hash map
+      } else {
+        hashmap[folderName] = `folder/${folderName}/${this.username}`;
+      }
+
+      const route = hashmap[folderName];
+
+      // Dispatch the updateHashMap action to update the store
+      this.$store.dispatch('updateHashMap', hashmap);
+      console.log('Hash Map:', this.$store.state.hashMap);
+
+      // Update the links array
       this.links.push({
         icon: 'mdi-folder',
-        text: folderName,
-        route: `/${folderName}/${this.username}`, // Update the route as needed
+        text: "folder/"+folderName,
+        route: route,
       });
+
       console.log('Updated links:', this.links);
     },
     renameFolder(index) {

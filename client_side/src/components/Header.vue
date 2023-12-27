@@ -11,7 +11,12 @@
       class="search"
     ></v-text-field>
 
-<v-pagination :total-visible="1" :length="100"></v-pagination>    <!-- Folder selection dropdown -->
+    <v-pagination
+      :total-visible="1"
+      :length="100"
+      v-model="currentPage"
+    ></v-pagination>
+
     <v-select
       v-model="selectedFolder"
       :items="folderOptions"
@@ -39,7 +44,6 @@
       outlined
       hide-details
       class="sort-criteria"
-      @change="changeSortCriteria"
     ></v-select>
 
     <!-- Search button -->
@@ -64,29 +68,51 @@ export default {
       sortCriteria: "Date",
       sortCriteriaOptions: ["Date", "Sender Email", "Priority", "Subject"],
       pageNumber: 1,
+      currentPage: 1,
     };
   },
   computed: {
     // Calculate the total number of pages based on itemsPerPage
     totalPages() {
-      return Math.ceil(this.filteredItems?.length / this.itemsPerPage);
+      return Math.ceil(this.filteredItems?.length / this.currentPage);
     },
     // Calculate the starting index for the current page
     startIndex() {
-      return (this.pageNumber - 1) * this.itemsPerPage;
+      return (this.currentPage - 1) * this.itemsPerPage;
     },
     // Get a slice of items based on the current page
     paginatedItems() {
       return this.filteredItems.slice(
         this.startIndex,
-        this.startIndex + this.itemsPerPage
+        this.startIndex + this.currentPage
       );
+    },
+   currentPage: {
+      get() {
+        return this.$store.getters.getPageNumber;
+      },
+      set(value) {
+        this.$store.dispatch('updatePageNumber', value);
+      },
+    },
+    sortCriteria: {
+      get() {
+        return this.$store.getters.getSortCriteria;
+      },
+      set(value) {
+        this.$store.dispatch('updateSortCriteria', value);
+      },
     },
   },
   methods: {
     confirmSearch() {
+      console.log("Search button clicked");
+      console.log("page number from store:", this.$store.getters.getPageNumber);
+      console.log("sort criteria from store:", this.$store.getters.getSortCriteria);
       // Redirect to /search/username route
-      this.$router.push({ path: `/search/${this.username}/${this.searchCriteria}/${this.searchText}/${this.sortCriteria}/${this.pageNumber}/${this.selectedFolder}` });
+      this.$router.push({
+        path: `/search/${this.username}/${this.searchCriteria}/${this.searchText}/${this.sortCriteria}/${this.pageNumber}/${this.selectedFolder}`,
+      });
 
       // Additional logic (if needed)
       console.log(
@@ -98,12 +124,9 @@ export default {
         this.searchCriteria
       );
       console.log("Sorting by:", this.sortCriteria);
+      this.$store.dispatch('updateSortCriteria', this.sortCriteria);
+      this.$store.dispatch('updatePageNumber', this.pageNumber);
       // You can put additional logic here, such as triggering a search function
-    },
-    changeSortCriteria() {
-      console.log('changeSortCriteria method called');
-      console.log('Sorting by:', this.sortCriteria);
-      // You can put additional logic here, such as triggering a sorting function
     },
   },
 };

@@ -77,6 +77,8 @@
                 <Compose
                   v-if="isDraftRoute"
                   :username="username"
+                  :fromDraft="true"
+                  :defaultMid="mail?.mid?.toString() || ''"
                   :defaultTo="mail?.sender?.toString() || ''"
                   :defaultSubject="mail?.subject?.toString() || ''"
                   :defaultContent="mail?.content?.toString() || ''"
@@ -156,6 +158,24 @@ export default {
     '$route': function (to, from) {
       // This will be called whenever the route changes
       console.log('Route changed:', to, from);
+      if (to.params.foldername === 'inbox') {
+        console.log('Inbox route');
+      }
+      else if (to.params.foldername === 'trash') {
+        console.log('Trash route');
+      }
+      else if (to.params.foldername === 'draft') {
+        console.log('Draft route');
+      }
+      else if (to.name === 'contact') {
+        console.log('Contact route');
+      }
+      else if (to.params.foldername === 'sent') {
+        console.log('Sent route');
+      }
+      else if (to.params.foldername !== 'inbox' && to.params.foldername !== 'trash' && to.params.foldername !== 'draft' && to.name !== 'contact' && to.params.foldername !== 'sent' ){
+        console.log('Folder route');
+      }
     },
     'getHashMap': function (newHashMap) {
       // Log the hashmap whenever it changes
