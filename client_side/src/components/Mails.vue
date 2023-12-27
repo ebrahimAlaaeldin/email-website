@@ -149,13 +149,17 @@
 import Navbar from "@/components/SideBar.vue";
 import Header from "@/components/Header";
 import Compose from "@/components/Compose.vue";
+import { mapGetters } from 'vuex';
 
 export default {
   watch: {
     '$route': function (to, from) {
       // This will be called whenever the route changes
       console.log('Route changed:', to, from);
-
+    },
+    'getHashMap': function (newHashMap) {
+      // Log the hashmap whenever it changes
+      console.log('Hashmap changed:', newHashMap);
     }
   },
   name: "Inbox",
@@ -253,6 +257,7 @@ export default {
     };
   },
   computed: {
+     ...mapGetters(['getHashMap']),
     folderNames() {
       return this.folders.map((folder) => folder.name);
     },
@@ -276,6 +281,8 @@ export default {
       return this.select[index] ? "selected-card" : "";
     },
     openDialog(mail) {
+      const hashMapFromStore = this.getHashMap;
+    console.log('HashMap from store:', hashMapFromStore);
       this.selectedMail = mail;
       this.dialogVisible = true;
     },

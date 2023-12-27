@@ -16,6 +16,7 @@ export class PostEmailDto{
         this.timestamp=Date
         this.attachments=Attachment
         this.priority=Priority
+        this.isDraft=false
     }
 }
 
@@ -46,11 +47,11 @@ export class Transfer{
 }
 
 export class Attachment{
-    constructor(AID,path,filename){
+    constructor(AID,path,filename,file){
         this.attachmentId=AID
         this.path=path
         this.filename=filename
-        
+        this.file=file       
     }
 
 }

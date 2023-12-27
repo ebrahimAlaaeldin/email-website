@@ -4,6 +4,7 @@
       <v-container v-show="menu" id="sidebar">
         <v-col>
           <NewFolder @folderCreated="updateLinks" />
+          <v-btn @click="setHashMap">Set Hash Map</v-btn>
         </v-col>
         <v-col>
           <Compose :username="username" />
@@ -64,8 +65,23 @@
 <script>
 import Compose from './Compose.vue';
 import NewFolder from './NewFolder.vue';
+import {computed} from 'vue';
+import { useStore } from 'vuex';
 
 export default {
+    setup() {
+    const store = useStore();
+    
+    const setHashMap = () => {
+      const newHashMap = { key1: 'value1', key2: 'value2' };
+      store.dispatch('updateHashMap', newHashMap);
+      console.log('Hash Map:', store.state.hashMap);  
+    };
+
+    return {
+      setHashMap,
+    };
+  },
   components: { Compose, NewFolder },
   props: { username: String, navigation: String },
   data() {

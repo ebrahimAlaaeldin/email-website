@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import { PostEmailDto } from "@/components/classes.js";
+import { PostEmailDto,Attachment } from "@/components/classes.js";
 import axios from "axios";
 
 export default {
@@ -131,73 +131,117 @@ export default {
       this.content = "";
       this.priority = "low";
     },
-    submit() {
-      let array = this.To.split(",");
-      if (this.$refs.form.validate()) {
-        var bodyFormData = new FormData();
-        var mail = new Mail(
-          this.From,
-          array,
-          this.Subject,
-          this.content,
-          this.date,
-          this.priority
+
+submit() {
+  let array = this.To.split(",");
+  if (this.$refs.form.validate()) {
+    var bodyFormData = new FormData();
+    let mail = new PostEmailDto(
+      1,
+      "moahemed",
+      array,
+      this.Subject,
+      this.content,
+      this.date,
+      1,
+      null
+    );
+    // bodyFormData.append("mail", mail);
+
+    // Append new attachments
+    let g = document.getElementById("choose").files;
+    console.log(g[0]);
+     bodyFormData.append("file", g[0]);
+    //  bodyFormData.append("mail",mail)
+    bodyFormData.append("emailId", mail.emailId);
+    bodyFormData.append("sender", mail.sender);
+    bodyFormData.append("receivers", JSON.stringify(mail.receivers)); // Assuming 'receivers' is an array
+    bodyFormData.append("subject", mail.subject);
+    bodyFormData.append("body", mail.body);
+    // bodyFormData.append("timestamp", mail.timestamp);
+    // bodyFormData.append("attachments", []); // Assuming 'attachments' is an object
+    bodyFormData.append("priority", 1);
+    bodyFormData.append("isDraft", 0);
+    console.log(mail)
+    console.log(bodyFormData);
+    // for (let i = 0; i < g.length; i++) {
+    //   bodyFormData.append("files[]", g[i]);
+    // }
+
+    // // Append default attachments
+    // this.attachments.forEach((attachment) => {
+    //   bodyFormData.append("files[]", attachment);
+    // });
+
+    // Log the object to the console
+    console.log(Array.from(bodyFormData.entries()));
+
+    var size = 0;
+    for (let i = 0; i < g.length; i++) {
+      size = size + g[i].size;
+    }
+
+    if (size > 1001000000) {
+      alert(
+        "You exceeded the maximum size for the attachments which is 1giga ,Kindly Remove the attachments"
+      );
+    } else {
+      if (size > 20000000) {
+        alert(
+          "Uploading high-size attachments will take a few moments >> Press OK to continue"
         );
-        bodyFormData.append("mail", JSON.stringify(mail));
-
-        // Append new attachments
-        let g = document.getElementById("choose").files;
-        for (let i = 0; i < g.length; i++) {
-          bodyFormData.append("file", g[i]);
-        }
-
-        // Append default attachments
-        this.attachments.forEach((attachment) => {
-          bodyFormData.append("file", attachment);
-        });
-
-        var formObject = {};
-        bodyFormData.forEach(function (value, key) {
-          formObject[key] = value;
-        });
-
-        // Log the object to the console
-        console.log(formObject);
-
-        var size = 0;
-        for (let i = 0; i < g.length; i++) {
-          size = size + g[i].size;
-        }
-        if (size > 1001000000) {
-          alert(
-            "You exceeded the maximum size for the attachments which is 1giga ,Kindly Remove the attachments"
-          );
-        } else {
-          if (size > 20000000) {
-            alert(
-              "Uploading high size attachments will take a few moments >> Press OK to continue"
-            );
-          }
-          axios({
-            method: "post",
-            url: "http://localhost:8765/observatory/api/mail",
-            data: bodyFormData,
-            headers: { "Content-Type": "multipart/form-data" },
-          }).then((response) => {
-            if (response.data) {
-              this.clear();
-              this.dialog = false;
-              this.$refs.myFileInput.reset();
-              g = null;
-              location.reload();
-            } else {
-              console.log("sent:" + bodyFormData);
-              alert("one or all receivers are wrong");
-            }
-          });
-        }
       }
-    },
+      mail.attachments = g;
+      fetch("http://192.168.237.205:8080/api/${this.username}/email/create",
+      {
+        method: "POST",
+        body: bodyFormData,
+      })
+        .then((response) => {
+          if (response.data) {
+            this.clear();
+            this.dialog = false;
+            this.$refs.myFileInput.reset();
+            g = null;
+            // location.reload();
+          } else {
+            console.log("sent:" + bodyFormData);
+            alert("one or all receivers are wrong");
+          }
+        })
+        .catch((error) => {
+          console.error("Error sending mail:", error);
+        });
+      // axios
+      //   .post(
+      //     `http://192.168.237.205:8080/api/${this.username}/email/create?mail="${((JSON.stringify(mail))).toString()}"`,
+
+      //     g,
+      //     {
+      //       headers: {
+      //         "Access-Control-Allow-Origin": "*", // Allow CORS
+      //       },
+      //     }
+      //   )
+      //   .then((response) => {
+      //     if (response.data) {
+      //       this.clear();
+      //       this.dialog = false;
+      //       this.$refs.myFileInput.reset();
+      //       g = null;
+      //       // location.reload();
+      //     } else {
+      //       console.log("sent:" + bodyFormData);
+      //       alert("one or all receivers are wrong");
+      //     }
+      //   })
+      //   .catch((error) => {
+      //     console.error('Error sending mail:', error);
+      //   });
+    }
+  }
+},
+
     draft() {
       let array = this.To.split(",");
       let g = document.getElementById("choose").files;
@@ -215,7 +259,7 @@ export default {
       bodyFormData.append(
         "mail",
         JSON.stringify(
-          new Mail(
+          new PostEmailDto(
             this.From,
             array,
             this.Subject,

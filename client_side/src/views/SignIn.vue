@@ -38,9 +38,10 @@ export default {
     async submitUsername() {
       if (this.username) {
         try {
-          const response = await axios.get(`/api/user/${this.username}`); // Replace with your actual API endpoint
+          const response = await axios.post(`http://192.168.237.205:8080/api/login?username=${this.username}`); // Replace with your actual API endpoint
           const userData = response.data; // Assuming the server returns user data
           this.user = new User(userData.userId, userData.username);
+          console.log('User data:', this.user);
         } catch (error) {
           console.error('Error fetching user data:', error);
         }
