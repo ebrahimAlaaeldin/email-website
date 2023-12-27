@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@CrossOrigin()
+@CrossOrigin(origins = "*")
 @RequestMapping("/api")
 public class MailController {
 //    Director director = Director.getInstance();
@@ -28,7 +28,7 @@ public class MailController {
     Faker faker = new Faker();
 
     @PostMapping(value = "/{username}/email/create")
-    public int createEmail(@PathVariable String username,@RequestParam("mail") String mid, @RequestBody List<MultipartFile> file) {
+    public int createEmail(@PathVariable String username,@RequestParam("file") MultipartFile file, @ModelAttribute EmailDto emailDto) {
         int id = (int)faker.number().randomNumber();
 //        System.out.println(emailDto);
 //        System.out.println(files);
@@ -79,7 +79,7 @@ public class MailController {
             for (int j = 0; j < 2; j++) {
                 attachments.add(new AttachmentDto(j, faker.file().fileName(),  faker.file().fileName()));
             }
-            emails.add(new EmailDto(i, faker.internet().emailAddress(), receivers, faker.lorem().sentence(), faker.lorem().paragraph(), LocalDateTime.now(), faker.bool().bool(), attachments, faker.number().numberBetween(1, 4)));
+            emails.add(new EmailDto(i, faker.internet().emailAddress(), receivers, faker.lorem().sentence(), faker.lorem().paragraph(), "dsad", faker.bool().bool(), faker.number().numberBetween(1, 4)));
         }
         return new EmailsRequestDto(emails,3);
     }
