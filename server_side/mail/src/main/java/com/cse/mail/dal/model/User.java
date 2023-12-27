@@ -39,9 +39,11 @@ public class User {
     public User() {
     }
 
-    public User(String username, List<Contact> contacts) {
+    // constructor for User
+    public User(String username,int userID ,List<Contact> contacts) {
         this.username = username;
         this.contacts = contacts;
+        this.id = userID;
     }
 
     public int getId() {

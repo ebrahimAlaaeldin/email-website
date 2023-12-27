@@ -4,12 +4,10 @@ package com.cse.mail.Controllers;
 import com.cse.mail.dal.model.Email;
 import com.cse.mail.dal.repository.EmailRepository;
 import com.cse.mail.dto.*;
-
+import com.cse.mail.upload.FileUploadUtil;
 import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -83,6 +81,20 @@ public class MailController {
         }
         return new EmailsRequestDto(emails,3);
     }
+
+    // public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) throws IOException {
+    //     String name = file.getOriginalFilename();
+    //     // Assuming FileUploadUtil.saveFile(name, file) saves the file and returns the path
+    //     try {
+    //         FileUploadUtil.saveFile(name, file);
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //     }
+    //     String filePath = FileUploadUtil.saveFile(name, file);
+    //     System.out.println("File uploaded successfully! -> filename = " + name);
+    //     // Return the file path or any other response as needed
+    //     return ResponseEntity.ok("File uploaded successfully! Path: " + filePath);
+    // }
 
 //    @PostMapping("/multiple")
 //    public String uploadMultipleFiles(@RequestParam("files") List<MultipartFile> files) {
