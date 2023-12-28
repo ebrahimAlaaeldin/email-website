@@ -3,8 +3,8 @@
     <v-main>
       <v-container v-show="menu" id="sidebar">
         <v-col>
-          <NewFolder @folderCreated="updateLinks" />
-          <v-btn @click="setHashMap">Set Hash Map</v-btn>
+          <NewFolder @folderCreated="updateLinks" :username="username" />
+          <!-- <v-btn @click="setHashMap">Set Hash Map</v-btn> -->
         </v-col>
         <v-col>
             <Compose :username="username" :fromDraft="false" />
@@ -12,26 +12,30 @@
         <v-col class="text-center">
         <v-btn  color="black" @click="showFilterDialog">Filter</v-btn>
         </v-col>
+        <v-col class="text-center">
+         <v-btn color="black" @click="openContactDialog">Add Contact</v-btn>
+        </v-col>
         <v-list>
-          <v-list-item v-for="(link, index) in links" :key="link.text" :to="link.route">
+          <v-list-item v-for="(link, index) in links"  :to="link.route" :key="link.text" >
             <v-list-item-content>
               <v-list-item-title class="black--text">
                 {{ link.text }}
               </v-list-item-title>
             </v-list-item-content>
             <!-- Conditionally render rename and delete buttons for added folders -->
-            <v-list-item-action v-if="index >= defaultLinksCount">
+              <v-list-item-action v-if="index >= defaultLinksCount">
+            <br>
               <v-btn @click="renameFolder(index)">Rename</v-btn>
               <v-btn @click="deleteFolder(index)">Delete</v-btn>
-              <v-btn @click="showFilterDialog">Filter</v-btn>
             </v-list-item-action>
           </v-list-item>
+          
         </v-list>
       </v-container>
     </v-main>
 
     <!-- Dialog for renaming folders or filtering emails -->
-    <v-dialog v-model="renameDialog" max-width="500">
+    <v-dialog v-model="isFilterDialog" max-width="500">
       <v-card v-if="isFilterDialog">
         <v-card-title>
           Filter Emails
@@ -45,8 +49,12 @@
           <v-btn @click="filterConfirmed">Filter</v-btn>
           <v-btn @click="cancelFilter">Cancel</v-btn>
         </v-card-actions>
+
       </v-card>
-      <v-card v-else>
+            </v-dialog>
+    <v-dialog v-model="renameDialog" max-width="500">
+
+      <v-card v-if="renameDialog">
         <v-card-title>
           Rename Folder
         </v-card-title>
@@ -56,6 +64,25 @@
         <v-card-actions>
           <v-btn @click="renameConfirmed">Rename</v-btn>
           <v-btn @click="cancelRename">Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+     <!-- Dialog for renaming folders, filtering emails, or adding contacts -->
+    <v-dialog v-model="isAddContactDialog" max-width="500">
+      <!-- ... (existing card content) ... -->
+      <!-- Add a new card for adding contacts -->
+      <v-card v-if="isAddContactDialog">
+        <v-card-title>
+          Add Contact
+        </v-card-title>
+        <v-card-text>
+          <v-text-field v-model="contactName" label="Contact Name"></v-text-field>
+          <v-text-field v-model="contactEmail" label="Contact Email"></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn @click="addContact">Add</v-btn>
+          <v-btn @click="cancelAddContact">Cancel</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -93,7 +120,7 @@ export default {
     return {
       menu: true,
     links: [
-      { icon: 'mdi-account', text: 'Contact', route: `/contact/${this.username}` },
+      { icon: 'mdi-account', text: 'Contact' ,route: `/contact/${this.username}` },
     ],
       defaultLinksCount: 5, // Number of default links
       // Dialog properties
@@ -107,6 +134,9 @@ export default {
       filterFolder: '',
       filterOptions: ['Subject', 'Sender'],
       folderOptions: ["Inbox", "Sent", "Drafts"], // Add more folders as needed
+            isAddContactDialog: false,
+      contactName: '',
+      contactEmail: '',
     };
   },
    mounted() {
@@ -117,11 +147,12 @@ export default {
   methods: {
     // Add a method to load data using axios
     loadData() {
-      axios.get('http://192.168.237.205:8080/api/mohamed/folder/list')
+      axios.get('http://192.168.116.205:8080/api/mohamed/folder/list')
         .then(response => {
           // Assuming response.data is an array of objects with properties like text and route
           const newData = response.data.map(item => ({
             text: item.folderName,
+            folderId: item.folderId,
             route: `/folder/${item.folderName}/${this.username}`,
           }));
 
@@ -195,7 +226,8 @@ export default {
     // New method to show the filter dialog
     showFilterDialog() {
       this.isFilterDialog = true;
-      this.renameDialog = true;
+      this.renameDialog = false;
+      this.isAddContactDialog = false;
     },
     filterConfirmed() {
       // Implement logic to filter emails based on the selected options
@@ -218,6 +250,39 @@ export default {
       this.filterType = 'Subject';
       this.filterValue = '';
       this.filterFolder = '';
+    },
+     // Method to open the contact addition dialog
+    openContactDialog() {
+      this.isFilterDialog = false;
+      this.renameDialog = false;
+      this.isAddContactDialog = true;
+    },
+
+    // Method to add a contact
+    addContact() {
+      // Validate contact name and email
+      if (this.contactName && this.contactEmail) {
+        // Perform logic to add the contact (e.g., make an API request)
+        // ...
+
+        // Close the dialog and reset values
+        this.isAddContactDialog = false;
+        this.renameDialog = false;
+        this.contactName = '';
+        this.contactEmail = '';
+      } else {
+        // Display an error message or handle invalid input
+        alert('Please enter both contact name and email.');
+      }
+    },
+
+    // Method to cancel adding a contact
+    cancelAddContact() {
+      // Close the dialog and reset values
+      this.isAddContactDialog = false;
+      this.renameDialog = false;
+      this.contactName = '';
+      this.contactEmail = '';
     },
 
   },

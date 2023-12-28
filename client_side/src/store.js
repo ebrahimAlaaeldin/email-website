@@ -5,7 +5,7 @@ export default createStore({
   state() {
     return {
       hashMap: {},
-      sortCriteria: 'Date',
+      sortCriteria: 'body',
       pageNumber: 1,
     };
   },

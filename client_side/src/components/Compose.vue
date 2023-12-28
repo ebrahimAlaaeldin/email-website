@@ -2,7 +2,7 @@
   <div class="text-center">
     <v-btn color="black" @click="dialog = true">Compose</v-btn>
 
-    <v-dialog v-model="dialog" width="500">
+    <v-dialog v-model="dialog" width="500" persistent>
       <v-card>
         <v-card-title class="grey lighten-2">
           Compose
@@ -42,17 +42,17 @@
               dense
             ></v-select>
 
-            <!-- Display default attachments -->
-            <v-row v-if="defaultAttachments?.length > 0">
-              <v-col>
-                <h4>Attachments:</h4>
-                <ul>
-                  <li v-for="(attachment, index) in defaultAttachments" :key="index">
-                    <a :href="attachment.path" target="_blank" download>{{ attachment.filename }}</a>
-                  </li>
-                </ul>
-              </v-col>
-            </v-row>
+  <v-row v-if="defaultAttachments?.length > 0">
+    <v-col>
+      <h4>Attachments:</h4>
+      <ul>
+        <li v-for="(attachment, index) in defaultAttachments" :key="index">
+          <a :href="attachment.path" target="_blank" download>{{ attachment.filename }}</a>
+          <v-btn text color="red" @click="removeAttachment(index)">Remove</v-btn>
+        </li>
+      </ul>
+    </v-col>
+  </v-row>
 
             <v-row>
               <v-btn color="success" @click="submit">Send</v-btn>
@@ -117,11 +117,15 @@ export default {
   },
   methods: {
     close() {
-      console.log(this.defaultContent);
+      console.log(this.defaultAttachments);
+      console.log(this.attachments);
+      // this.defaultAttachments=this.attachments;
       console.log("Close button clicked");
       this.dialog = false;
       this.clear();
       this.$refs.myFileInput.reset();
+            window.location.reload();
+
     },
     clear() {
       this.To = "";
@@ -129,7 +133,11 @@ export default {
       this.content = "";
       this.priority = "low";
     },
-
+ removeAttachment(index) {
+      // Remove the specified attachment from the defaultAttachments array
+      // this.defaultAttachments.splice(index, 1);
+      this.attachments.splice(index, 1);
+    },
     submit() {
       let array = this.To.split(",");
       if (this.$refs.form.validate()) {
@@ -159,17 +167,17 @@ export default {
           this.content,
           this.date,
           this.priority,
-          null,
+          this.attachments,
           this.isDraft
         );
 let g = document.getElementById("choose").files;
         this.attachments.forEach((attachment) => {
           g.append(attachment);
         });
-        let url=`http://192.168.237.205:8080/api/${this.username}/email/create`
+        let url=`http://192.168.116.205:8080/api/${this.username}/email/create`
         bodyFormData.append("file", g[0]);
         if (this.fromDraft) {
-          url=`http://192.168.237.205:8080/api/${this.username}/email/edit`
+          url=`http://192.168.116.205:8080/api/${this.username}/email/edit`
           bodyFormData.append("emailId", mail.id);
         } else {
           bodyFormData.append("emailId", -1);
@@ -204,7 +212,7 @@ let g = document.getElementById("choose").files;
                 this.dialog = false;
                 this.$refs.myFileInput.reset();
                 g = null;
-                location.reload();
+                window.location.reload();
               } else {
                 console.log("sent:" + bodyFormData);
                 alert("One or all receivers are wrong");
@@ -246,7 +254,7 @@ let g = document.getElementById("choose").files;
           this.content,
           this.date,
           this.priority,
-          null,
+          this.attachments,
           this.isDraft
         );
 let g = document.getElementById("choose").files;
@@ -255,9 +263,9 @@ let g = document.getElementById("choose").files;
         });
 
         bodyFormData.append("file", g[0]);
-        let url="http://192.168.237.205:8080/api/${this.username}/email/create"
+        let url="http://192.168.116.205:8080/api/${this.username}/email/create"
         if (this.fromDraft) {
-          url="http://192.168.237.205:8080/api/${this.username}/email/edit"
+          url="http://192.168.116.205:8080/api/${this.username}/email/edit"
           bodyFormData.append("emailId", mail.id);
         } else {
           bodyFormData.append("emailId", -1);
@@ -292,7 +300,7 @@ let g = document.getElementById("choose").files;
                 this.dialog = false;
                 this.$refs.myFileInput.reset();
                 g = null;
-                location.reload();
+                window.location.reload();
               } else {
                 console.log("sent:" + bodyFormData);
                 alert("One or all receivers are wrong");

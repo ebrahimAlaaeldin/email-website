@@ -18,8 +18,12 @@
 
 <script>
 import { ref } from 'vue';
-
+import axios from 'axios';
+import {Folder} from './classes.js';
 export default {
+  props: {
+    username: String,
+  },
   data() {
     return {
       dialog: false,
@@ -36,7 +40,17 @@ export default {
     },
     createFolder() {
       // Emit an event with the folderName
-      this.$emit('folderCreated', this.folderName);
+      // this.$emit('folderCreated', this.folderName);
+
+      axios.post(`http://192.168.116.205:8080/api/ayman/folder/create?folderName=${this.folderName}`)
+        .then((response) => {
+          console.log(response);
+          const newFolder = new Folder(response.data.folderId, this.folderName);
+          this.$emit('folderCreated', newFolder);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
 
       // Add your logic here to handle folder creation with this.folderName
       // You can make an API call, use a Vuex store, etc.

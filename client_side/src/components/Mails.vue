@@ -42,6 +42,7 @@
               <v-card-text>{{ contact?.contactEmails?.join(', ') }}</v-card-text>
               <br>
               <v-btn @click="toggleContactSelect(index)">Select</v-btn>
+              <v-btn @click="openEditDialog(contact)">Edit</v-btn>
             </v-card>
           </v-col>
 
@@ -148,6 +149,26 @@
       </v-container>
     </v-main>
     <!-- At the bottom of the template -->
+
+    <!-- Edit Contact Dialog -->
+  <!-- Edit Contact Dialog -->
+  <v-dialog v-model="editDialogVisible">
+    <v-card>
+      <v-card-title>Edit Contact</v-card-title>
+      <v-card-text>
+        <v-text-field v-model="editedContact.name" label="Name"></v-text-field>
+        <v-text-field
+          v-model="editedContactEmailsString"
+          label="Emails"
+          readonly
+        ></v-text-field>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn @click="closeEditDialog">Cancel</v-btn>
+        <v-btn @click="updateContact">Save</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
   </v-app>
 </template>
 
@@ -160,6 +181,10 @@ import VueCookies from "vue-cookies";
 import { mapGetters } from "vuex";
 import { get_email } from "./classes.js";
 export default {
+    created() {
+    // Fetch mails and contacts on component creation
+    this.fetchData();
+  },
   mounted() {
     // Retrieve userId from cookies
     this.userId = VueCookies.get("userId");
@@ -231,6 +256,12 @@ export default {
       trashRouteName: "trash",
       contactRouteName: "contact",
       draftRouteName: "draft",
+         editDialogVisible: false,
+      editedContact: {
+        name: '',
+        contactEmails: [],
+      },
+      selectedContactIndex: null,
     };
   },
   computed: {
@@ -252,8 +283,19 @@ export default {
         this.$route.params.foldername?.toLowerCase() === this.draftRouteName
       );
     },
+     editedContactEmailsString() {
+      // Combine contact emails into a single string separated by commas
+      return this.editedContact.contactEmails.join(', ');
+    },
   },
-  methods: {
+methods: {
+    fetchData() {
+      if (this.$route.name === "contact") {
+        this.load_contacts();
+      } else {
+        this.load_mails(this.$route);
+      }
+    },
     search_mails()
     {
       let searchfor=this.$route.params.searchfor
@@ -268,7 +310,7 @@ export default {
         this.$store.getters.getPageNumber,
         10
       );
-        const apiUrl = "http://192.168.237.205:8080/api/mohamed/email/list";
+        const apiUrl = "http://192.168.116.205:8080/api/mohamed/email/list";
 
       // Send the POST request with the object as the request payload
       axios
@@ -292,7 +334,7 @@ export default {
       this.mails = [];
       this.conatcts = [];
       // Define the API endpoint where you want to send the POST request
-      const apiUrl = "http://192.168.237.205:8080/api/mohamed/contacts/list";
+      const apiUrl = "http://192.168.116.205:8080/api/mohamed/contacts/list";
 
       // Send the POST request with the object as the request payload
       axios
@@ -328,15 +370,15 @@ export default {
       const emailObject = new get_email(
         VueCookies.get("userId"),
         fid,
-        null,
-        null,
+        "body",
+        "b",
         this.$store.getters.getSortCriteria,
         this.$store.getters.getPageNumber,
         10
       );
 
       // Define the API endpoint where you want to send the POST request
-      const apiUrl = "http://192.168.237.205:8080/api/mohamed/email/list";
+      const apiUrl = "http://192.168.116.205:8080/api/mohamed/email/list";
 
       // Send the POST request with the object as the request payload
       axios
@@ -372,6 +414,43 @@ export default {
       this.dialogVisible = false;
     },
     deleteSelected() {
+      if(this.isTrashRoute || this.isDraftRoute || this.isContactRoute) 
+      {
+        let req='email'
+        if(this.isContactRoute)
+        {
+            req='contact'
+        }
+        this.mails.forEach((mail, index) => {
+          if (this.select[index]) {
+            console.log("Deleting mail:", mail);
+            const apiUrl = `http://192.168.116.205:8080/api/mohamed/${req}/delete`
+            axios
+              .post(apiUrl, {
+                emailId: mail.id,
+              })
+              .then((response) => {
+                // Handle the response
+                const responseData = response.data;
+                console.log("Response:", response.data);
+                location.reload();
+              })
+              .catch((error) => {
+                // Handle errors
+                console.error("Error:", error);
+              });
+            }
+            }
+            )
+      
+      }
+      else
+      {
+      this.mails.forEach((mail, index) => {
+        if (this.select[index]) {
+          console.log("Deleting mail:", mail);
+          const apiUrl = "http://"}})
+      }
       console.log("Deleting selected emails");
     },
     restoreSelected() {
@@ -414,6 +493,28 @@ export default {
     },
     getContactCardClass(index) {
       return this.selected_contacts[index] ? "selected-contact" : "";
+    },
+   openEditDialog(contact) {
+      // Open the edit dialog and populate it with the contact's information
+      this.editedContact = { ...contact };
+      this.selectedContactIndex = this.contacts.indexOf(contact);
+      this.editDialogVisible = true;
+    },
+    closeEditDialog() {
+      // Close the edit dialog
+      this.editDialogVisible = false;
+      this.editedContact = { name: '', contactEmails: [] };
+      this.selectedContactIndex = null;
+    },
+    updateContact() {
+      // Update the contact and close the edit dialog
+      console.log('Updating contact:', this.editedContact)
+      if (this.selectedContactIndex !== null) {
+
+        this.$set(this.contacts, this.selectedContactIndex, this.editedContact);
+        // Make an API call to update the contact on the server if needed
+      }
+      this.closeEditDialog();
     },
   },
 };

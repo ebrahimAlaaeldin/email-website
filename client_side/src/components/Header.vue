@@ -58,11 +58,23 @@ export default {
   props: {
     username: String,
   },
+    watch: {
+    // Watch for changes in the hashMap in the store
+    '$store.state.hashMap': {
+      handler(newHashMap) {
+        // Update the folderOptions and fids based on the new hashMap
+        this.folderOptions = Object.values(newHashMap).map(obj => obj.text);
+        this.fids = Object.values(newHashMap).map(obj => obj.folderId);
+      },
+      deep: true, // Enable deep watching to detect nested changes
+    },
+  },
   data() {
     return {
       searchText: " ",
       selectedFolder: "Inbox", // New property for folder selection
       folderOptions: Object.values(this.$store.getters.getHashMap).map(obj => obj.text), // Add more folders as needed
+      fids:Object.values(this.$store.getters.getHashMap).map(obj => obj.folderId),
       searchCriteria: "subject",
       searchCriteriaOptions: ["sender", "receivers", "subject","body","timestamp","priority"],
       sortCriteria: "timestamp",
@@ -102,6 +114,7 @@ export default {
       },
       set(value) {
         this.$store.dispatch('updateSortCriteria', value);
+        this.sortCriteria=value;
       },
     },
   },
@@ -111,8 +124,13 @@ export default {
       console.log("page number from store:", this.$store.getters.getPageNumber);
       console.log("sort criteria from store:", this.$store.getters.getSortCriteria);
       // Redirect to /search/username route
+      console.log("sort from store:", this.$store.getters.getSortCriteria);
+      console.log("sort ",this.sortCriteria);
+      console.log(this.fids)
+      let ids=Object.values(this.fids);
+      console.log(ids);
       this.$router.push({
-        path: `/search/${this.username}/${this.searchCriteria}/${this.searchText}/${this.sortCriteria}/${this.pageNumber}/${this.folderOptions.indexOf(this.selectedFolder)}`,
+        path: `/search/${this.username}/${this.searchCriteria}/${this.searchText}/${this.sortCriteria}/${this.pageNumber}/${ids[this.folderOptions.indexOf(this.selectedFolder)]}`,
       });
 
       // Additional logic (if needed)
