@@ -14,13 +14,11 @@ public class UserAdapter {
 
     public User dtoToEntity(UserDto dto) {
         if(dto.getUserId() == -1 ){
-            User user = new UserBuilder().setUsername(dto.getUsername()).setUserID(-1).build();
+            User user = new UserBuilder().setUsername(dto.getUsername()).build();
             return user;
         }
         else{
             User user = userRepository.findById(dto.getUserId()).orElse(null);
-            
-    
             return user;
         }
     }

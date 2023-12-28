@@ -1,6 +1,8 @@
 package com.cse.mail.dal.model;
 
 import jakarta.persistence.*;
+import org.springframework.data.repository.cdi.Eager;
+
 import java.util.List;
 
 @Entity(name = "Folder")
@@ -13,6 +15,10 @@ public class Folder {
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     @ManyToOne
@@ -57,7 +63,7 @@ public class Folder {
     }
     
 
-    @ManyToMany()
+    @ManyToMany(fetch =  FetchType.EAGER)
     @JoinTable(
             name = "folder_emails",
             joinColumns = @JoinColumn(name = "folder_id"),
@@ -68,8 +74,18 @@ public class Folder {
     @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Filter> filters;
 
-    public Folder(User user, String folderName, boolean isRemovable, boolean isRenamable, List<Email> emails,
-            List<Filter> filters) {
+    public List<Email> getEmails() {
+        return emails;
+    }
+
+    public void setEmails(List<Email> emails) {
+        this.emails = emails;
+    }
+
+    public Folder() {
+    }
+
+    public Folder(User user, String folderName, boolean isRemovable, boolean isRenamable, List<Email> emails, List<Filter> filters) {
         this.user = user;
         this.folderName = folderName;
         this.isRemovable = isRemovable;
@@ -77,5 +93,4 @@ public class Folder {
         this.emails = emails;
         this.filters = filters;
     }
-    
 }

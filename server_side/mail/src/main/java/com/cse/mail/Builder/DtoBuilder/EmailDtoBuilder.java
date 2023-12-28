@@ -2,6 +2,7 @@ package com.cse.mail.Builder.DtoBuilder;
 
 import java.util.List;
 
+import com.cse.mail.dto.AttachmentDto;
 import com.cse.mail.dto.EmailDto;
 
 public class EmailDtoBuilder {
@@ -14,6 +15,8 @@ public class EmailDtoBuilder {
     private String timestamp;
     private boolean isDraft;
     private int priority;
+
+    private List<AttachmentDto> attachments;
 
     public EmailDtoBuilder setEmailId(int emailId) {
         this.emailId = emailId;
@@ -55,9 +58,15 @@ public class EmailDtoBuilder {
         return this;
     }
 
+    public EmailDtoBuilder setAttachments(List<AttachmentDto> attachments) {
+        this.attachments = attachments;
+        return this;
+    }
+
+
     public EmailDto build() {
 
-        return new EmailDto(emailId, sender, receivers, subject, body, timestamp, isDraft, priority);
+        return new EmailDto(emailId, sender, receivers, subject, body, timestamp, isDraft,attachments, priority);
     }
 
 }

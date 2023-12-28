@@ -39,11 +39,9 @@ public class User {
     public User() {
     }
 
-    // constructor for User
-    public User(String username,int userID ,List<Contact> contacts) {
+    public User(String username, List<Contact> contacts) {
         this.username = username;
         this.contacts = contacts;
-        this.id = userID;
     }
 
     public int getId() {
@@ -54,8 +52,16 @@ public class User {
         return username;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public List<Contact> getContacts() {
         return contacts;
+    }
+
+    public void setContacts(List<Contact> contacts) {
+        this.contacts = contacts;
     }
 
     @Override

@@ -19,6 +19,11 @@ public class FolderAdapter {
             return folder;
         }
         else{folder = folderRepository.findById(dto.getFolderId()).orElse(null);
+//            if(folder == null){
+//                return new FolderBuilder().setFolderName(dto.getFolderName()).setIsRemovable(dto.getIsRemovable()).setIsRenamable(dto.getIsRenamable()).build();
+
+//            }
+//            assert folder != null;
             folder.setFolderName(dto.getFolderName());
             folder.setRemovable(dto.getIsRemovable());
             folder.setRenamable(dto.getIsRenamable());
