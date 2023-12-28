@@ -1,5 +1,7 @@
 package com.cse.mail.dto;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -7,10 +9,13 @@ import java.util.Objects;
  * A DTO for the {@link com.cse.mail.dal.model.Attachment} entity
  */
 public class AttachmentDto implements Serializable {
-    private final int attachmentId;
-    private final String path;
-    private final String filename;
+    private int attachmentId;
+    private String path;
+    private String filename;
 
+    public AttachmentDto(){
+
+    }
 
     public AttachmentDto(int attachmentId, String path, String filename) {
         this.attachmentId = attachmentId;

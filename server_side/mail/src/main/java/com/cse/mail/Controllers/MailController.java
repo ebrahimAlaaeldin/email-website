@@ -1,12 +1,20 @@
 package com.cse.mail.Controllers;
 
+import com.cse.mail.controls.EmailSpecification;
 //import com.cse.mail.controls.Director;
+import com.cse.mail.controls.SearchCriteria;
 import com.cse.mail.dal.model.Email;
 import com.cse.mail.dal.repository.EmailRepository;
+import com.cse.mail.dal.repository.FolderRepository;
 import com.cse.mail.dto.*;
 
 import com.github.javafaker.Faker;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,12 +31,18 @@ import java.util.List;
 public class MailController {
 //    Director director = Director.getInstance();
     @Autowired
-    private EmailRepository emailrepository;
+    private EmailRepository emailRepository;
+
+    @Autowired
+    private FolderRepository folderRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     Faker faker = new Faker();
 
     @PostMapping(value = "/create")
-    public int createEmail(@PathVariable String username,@RequestParam("file") MultipartFile file, @ModelAttribute EmailDto emailDto) {
+    public int createEmail(@PathVariable String username,@RequestParam("file") List<MultipartFile> file, @ModelAttribute EmailDto emailDto) {
         int id = (int)faker.number().randomNumber();
 //        System.out.println(emailDto);
 //        System.out.println(files);
@@ -68,20 +82,27 @@ public class MailController {
 
     @PostMapping("/list")
     public EmailsRequestDto listEmails(@PathVariable String username, @RequestBody SearchEmailDto searchEmailDto) {
-        System.out.println(searchEmailDto);
-        List<EmailDto> emails = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            List<String> receivers = new ArrayList<>();
-            for (int j = 0; j < 3; j++) {
-                receivers.add(faker.internet().emailAddress());
-            }
-            List<AttachmentDto> attachments = new ArrayList<>();
-            for (int j = 0; j < 2; j++) {
-                attachments.add(new AttachmentDto(j, faker.file().fileName(),  faker.file().fileName()));
-            }
-            emails.add(new EmailDto(i, faker.internet().emailAddress(), receivers, faker.lorem().sentence(), faker.lorem().paragraph(), "1202022", false,attachments, faker.number().numberBetween(1, 4)));
-        }
-        return new EmailsRequestDto(emails,3);
+
+            // Create a Specification based on the search criteria
+            EmailSpecification spec = new EmailSpecification(new SearchCriteria(searchEmailDto.getSearchType(), ":", searchEmailDto.getSearchFor()));
+
+            // Create a Pageable with the page number and number of elements per page
+            Pageable pageable = PageRequest.of(searchEmailDto.getPageNumber(), searchEmailDto.getNumberOfElementsInPage(), Sort.by(searchEmailDto.getSortBy()));
+
+            // Query the database and get a Page of Emails
+            Page<Email> emails = emailRepository.findAll(spec, pageable);
+            List<Email> emailList = emails.getContent();
+
+            // Convert the Page of Emails to a Page of EmailDtos
+            Page<EmailDto> emailDtos = emails.map(email -> modelMapper.map(email, EmailDto.class));
+
+//            List<EmailDto> emailDtosList = new ArrayList<>();
+//            for (Email email: emailList) {
+//                EmailDto emailDto = new EmailDto(email.getId(),email.getSender());
+//            }
+
+            EmailsRequestDto emailsRequestDto = new EmailsRequestDto(emailDtos.getContent(),emails.getTotalPages());
+            return emailsRequestDto;
     }
 
 //    @PostMapping("/multiple")

@@ -19,8 +19,6 @@ public class UserAdapter {
         }
         else{
             User user = userRepository.findById(dto.getUserId()).orElse(null);
-            // user.setUsername(dto.getUsername());
-    
             return user;
         }
     }

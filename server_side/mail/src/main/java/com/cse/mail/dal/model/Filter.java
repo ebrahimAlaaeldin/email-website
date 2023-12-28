@@ -28,27 +28,4 @@ public class Filter {
             unique = true
     )
     private String filterData;
-
-    public Filter(Folder folder, String filterMode, String filterData) {
-        this.folder = folder;
-        this.filterMode = filterMode;
-        this.filterData = filterData;
-    }
-
-public int getId() {
-        return id;
-}
-
-public Folder getFolder() {
-        return folder;
-}
-
-public String getFilterMode() {
-        return filterMode;
-}
-
-public String getFilterData() {
-        return filterData;
-}
-    
 }

@@ -1,6 +1,7 @@
 package com.cse.mail.dto;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -94,6 +95,10 @@ public class EmailDto implements Serializable {
 
     public void setDraft(boolean draft) {
         isDraft = draft;
+    }
+
+    public void setAttachments(List<AttachmentDto> attachments) {
+        this.attachments = attachments;
     }
 
     public void setPriority(int priority) {

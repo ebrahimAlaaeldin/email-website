@@ -6,7 +6,7 @@ import com.cse.mail.dal.model.Contact;
 import com.cse.mail.dal.model.User;
 
 public class UserBuilder {
-    
+
     private String username;
     private List<Contact> contacts;
 
@@ -20,6 +20,6 @@ public class UserBuilder {
     }
 
     public User build() {
-        return new User(username, contacts);
+        return new User(username,contacts);
     }
 }
