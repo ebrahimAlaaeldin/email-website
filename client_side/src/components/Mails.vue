@@ -84,7 +84,7 @@
                   v-if="isDraftRoute"
                   :username="username"
                   :fromDraft="true"
-                  :defaultMid="mail?.mid?.toString() || ''"
+                  :defaultMid="mail?.emailId?.toString() || ''"
                   :defaultTo="mail?.sender?.toString() || ''"
                   :defaultSubject="mail?.subject?.toString() || ''"
                   :defaultContent="mail?.content?.toString() || ''"
@@ -136,7 +136,7 @@
               <!-- Use v-select for the dropdown -->
               <v-select
                 v-model="selectedFolder"
-                :items="folderNames"
+                :items="folder_names"
                 label="Select Folder"
               ></v-select>
             </v-card-text>
@@ -179,7 +179,7 @@ import Compose from "@/components/Compose.vue";
 import axios from "axios";
 import VueCookies from "vue-cookies";
 import { mapGetters } from "vuex";
-import { get_email } from "./classes.js";
+import { get_email,Contact,Transfer } from "./classes.js";
 export default {
     created() {
     // Fetch mails and contacts on component creation
@@ -193,6 +193,8 @@ export default {
     } else {
       console.log("UserId not found in cookies.");
     }
+     this.fetchData();
+
   },
   watch: {
     $route: function (to, from) {
@@ -235,13 +237,14 @@ export default {
       // Log the hashmap whenever it changes
       console.log("Hashmap changed:", newHashMap);
     },
+ 
   },
   name: "Inbox",
   components: { Navbar, Header, Compose },
   data() {
     return {
       username: this.$route.params.username,
-      folders: [],
+      folders: this.$store.getters.getHashMap,
       isCopyToDialogOpen: false,
       selectedFolder: null,
       mails: [],
@@ -283,34 +286,51 @@ export default {
         this.$route.params.foldername?.toLowerCase() === this.draftRouteName
       );
     },
+    isSentRoute() {
+      return (
+        this.$route.params.foldername?.toLowerCase() === "sent"
+      );},
      editedContactEmailsString() {
       // Combine contact emails into a single string separated by commas
       return this.editedContact.contactEmails.join(', ');
     },
+    folder_names: function () {
+      // Log the folder names whenever they change
+      let folders=this.$store.getters.getHashMap
+      let folderNames = Object.values(folders).map(obj => obj.text);
+      return folderNames;
+    },
+    folder_ids: function () {
+      // Log the folder ids whenever they change
+      let folders=this.$store.getters.getHashMap
+      let folderIds = Object.values(folders).map(obj => obj.folderId);
+      return folderIds;
+    },
+
   },
 methods: {
-    fetchData() {
-      if (this.$route.name === "contact") {
-        this.load_contacts();
-      } else {
-        this.load_mails(this.$route);
-      }
-    },
+
     search_mails()
     {
       let searchfor=this.$route.params.searchfor
       let searchby=this.$route.params.searchby
       let fid=this.$route.params.FolderId
+      if(fid === undefined)
+      {
+        load_conatcts();
+        this.contacts=this.contacts.filter(contact => contact.name.toLowerCase().includes(searchfor.toLowerCase()))
+      }
+      else{
       const emailObject = new get_email(
         VueCookies.get("userId"),
         fid,
         searchby,
         searchfor,
         this.$store.getters.getSortCriteria,
-        this.$store.getters.getPageNumber,
+        this.$store.getters.getPageNumber-1,
         10
       );
-        const apiUrl = "http://192.168.116.205:8080/api/mohamed/email/list";
+        const apiUrl = `http://192.168.116.205:8080/api/${this.username}/email/list`;
 
       // Send the POST request with the object as the request payload
       axios
@@ -321,7 +341,37 @@ methods: {
 
           this.mails = responseData.emails;
           const numberOfPages = responseData.numberOfPages;
-
+          const sortCriteria= this.$store.getters.getSortCriteria
+          let sortedmails=this.mails
+          switch(sortCriteria)
+          {
+            case "sender":
+              this.sortedmails.sort((a, b) =>
+            a?.sender.localeCompare(b?.sender)
+          );
+              break;
+            case "subject":
+              this.sortedmails.sort((a, b) =>
+            a?.subject.localeCompare(b?.subject)
+          );
+              break;
+            case "body":
+              this.sortedmails.sort((a, b) =>
+            a?.content.localeCompare(b?.content)
+          );
+              break;
+            case "timestamp":
+              this.sortedmails.sort((a, b) =>
+            a?.timestamp.localeCompare(b?.timestamp)
+          );
+              break;
+            case "priority":
+              this.sortedmails.sort((a, b) =>
+            a?.priority.localeCompare(b?.priority)
+          );
+              break;
+          }
+          this.mails=sortedmails
           console.log("Response:", response.data);
           console.log("attachment1", this.mails[0].attachments[0].filename);
         })
@@ -329,12 +379,13 @@ methods: {
           // Handle errors
           console.error("Error:", error);
         });
+        }
     },
     load_conatcts() {
       this.mails = [];
       this.conatcts = [];
       // Define the API endpoint where you want to send the POST request
-      const apiUrl = "http://192.168.116.205:8080/api/mohamed/contacts/list";
+      const apiUrl = `http://192.168.116.205:8080/api/${this.username}/contacts/list`;
 
       // Send the POST request with the object as the request payload
       axios
@@ -344,6 +395,13 @@ methods: {
           const responseData = response.data;
 
           this.contacts = responseData;
+          //sort this.contacts by name
+          let sortedList = this.contacts.sort((a, b) =>
+            a?.name.localeCompare(b?.name)
+          );
+          this.contacts = sortedList;
+console.log(sortedList);
+
           console.log("Response:", response.data);
           console.log("contacts", this.contacts[0].name);
         })
@@ -357,28 +415,27 @@ methods: {
       console.log("loading mails");
       console.log("folders", this.folders);
       this.folders = this.$store.getters.getHashMap;
+      console.log("folders", this.folders);
       const keyToCheck = to.params.foldername;
+      let fids=Object.values(this.$store.getters.getHashMap).map(obj => obj.folderId)
+      console.log("fids",fids)
+      let namesF=Object.values(this.$store.getters.getHashMap).map(obj => obj.text)
+      let fid=fids[namesF.indexOf(keyToCheck)]
 
-      if (this.folders[keyToCheck] !== undefined) {
-        console.log(`${keyToCheck} exists in the hashmap.`);
-      } else {
-        console.log(`${keyToCheck} does not exist in the hashmap.`);
-      }
-      let fid = this.folders[keyToCheck];
       // Create an instance of the get_email class
 
       const emailObject = new get_email(
         VueCookies.get("userId"),
         fid,
         "body",
-        "b",
+        null,
         this.$store.getters.getSortCriteria,
-        this.$store.getters.getPageNumber,
+        this.$store.getters.getPageNumber-1,
         10
       );
 
       // Define the API endpoint where you want to send the POST request
-      const apiUrl = "http://192.168.116.205:8080/api/mohamed/email/list";
+      const apiUrl = `http://192.168.116.205:8080/api/${this.username}/email/list`;
 
       // Send the POST request with the object as the request payload
       axios
@@ -389,14 +446,52 @@ methods: {
 
           this.mails = responseData.emails;
           const numberOfPages = responseData.numberOfPages;
+   const sortCriteria= this.$store.getters.getSortCriteria
+          let sortedmails=this.mails
+          switch(sortCriteria)
+          {
+            case "sender":
+              this.sortedmails?.sort((a, b) =>
+            a?.sender.localeCompare(b?.sender)
+          );
+              break;
+            case "subject":
+              this.sortedmails?.sort((a, b) =>
+            a?.subject.localeCompare(b?.subject)
+          );
+              break;
+            case "body":
+              this.sortedmails?.sort((a, b) =>
+            a?.content.localeCompare(b?.content)
+          );
+              break;
+            case "timestamp":
+              this.sortedmails?.sort((a, b) =>
+            a?.timestamp.localeCompare(b?.timestamp)
+          );
+              break;
+            case "priority":
+              this.sortedmails?.sort((a, b) =>
+              a?.priority.localeCompare(b?.priority)
+            )?.reverse();
 
+              break;
+          }
+          this.mails=sortedmails
           console.log("Response:", response.data);
-          console.log("attachment1", this.mails[0].attachments[0].filename);
+          console.log("attachment1", this.mails[0]?.attachments[0]?.filename);
         })
         .catch((error) => {
           // Handle errors
           console.error("Error:", error);
         });
+    },
+        fetchData() {
+      if (this.$route.name === "contact") {
+        this.load_conatcts();
+      } else {
+        this.load_mails(this.$route);
+      }
     },
     toggleSelect(index) {
       this.select = Object.assign([], this.select, {
@@ -414,21 +509,20 @@ methods: {
       this.dialogVisible = false;
     },
     deleteSelected() {
-      if(this.isTrashRoute || this.isDraftRoute || this.isContactRoute) 
+      if(this.isTrashRoute || this.isDraftRoute || this.isSentRoute ) 
       {
+        console.log("HEre")
         let req='email'
-        if(this.isContactRoute)
-        {
-            req='contact'
-        }
+        let ids=[]
         this.mails.forEach((mail, index) => {
           if (this.select[index]) {
             console.log("Deleting mail:", mail);
-            const apiUrl = `http://192.168.116.205:8080/api/mohamed/${req}/delete`
+            ids.push(mail.emailId)
+            }
+          })
+            const apiUrl = `http://192.168.116.205:8080/api/${this.username}/${req}/delete?emailId=${ids}`
             axios
-              .post(apiUrl, {
-                emailId: mail.id,
-              })
+              .post(apiUrl)
               .then((response) => {
                 // Handle the response
                 const responseData = response.data;
@@ -439,11 +533,38 @@ methods: {
                 // Handle errors
                 console.error("Error:", error);
               });
-            }
-            }
-            )
-      
+
       }
+      else if(this.isContactRoute)
+      {
+        let ids=[]
+        console.log("Deleting selected contacts");
+        console.log("selected contacts",this.selected_contacts)
+        this.contacts.forEach((contact, index) => {
+           if (this.selected_contacts[index]) {
+            console.log("Deleting contact:", contact);
+            ids.push(contact.contactId)
+           }
+
+        })
+         console.log("ids",ids)
+          
+            const apiUrl = `http://192.168.116.205:8080/api/${this.username}/contacts/delete?contactId=${ids}`;
+            axios
+              .post(apiUrl)
+              .then((response) => {
+                // Handle the response
+                const responseData = response.data;
+                console.log("Response:", response.data);
+                location.reload();
+              })
+              .catch((error) => {
+                // Handle errors
+                console.error("Error:", error);
+              });
+            
+
+          }
       else
       {
       this.mails.forEach((mail, index) => {
@@ -454,6 +575,21 @@ methods: {
       console.log("Deleting selected emails");
     },
     restoreSelected() {
+      let selected_emails_ids = [];
+      let folders=this.$store.getters.getHashMap;
+      this.mails.forEach((mail, index) => {
+        if (this.select[index]) {
+          console.log("Restoring mail:", mail);
+          selected_emails_ids.push(mail.emailId);
+        }
+      });
+      console.log("selected_emails_ids", selected_emails_ids);
+      const apiUrl = `http://192.168.116.205:8080/api/${this.username}/email/move`;
+      const transferObject = new Transfer(
+        VueCookies.get("userId"),
+        selected_emails_ids,
+        1
+      );
       console.log("Restoring selected emails");
     },
     openCopyToDialog() {
@@ -464,7 +600,28 @@ methods: {
       this.selectedFolder = null;
     },
     copyToSelectedFolder() {
+      console.log("Copying selected emails to:", this.selectedFolder);
       if (this.selectedFolder) {
+let fids=Object.values(this.$store.getters.getHashMap).map(obj => obj.folderId)
+      console.log("fids",fids)
+      let namesF=Object.values(this.$store.getters.getHashMap).map(obj => obj.text)
+      let fid=fids[namesF.indexOf(this.selectedFolder)]
+
+        let ids=[]
+        this.mails.forEach((mail, index) => {
+          if (this.select[index]) {
+            console.log("Copying mail:", mail);
+            ids.push(mail.emailId)
+          }
+        })
+        const apiUrl = `http://192.168.116.205:8080/api/${this.username}/email/copy?emailId=${ids}&folderId=${fid}`;
+        axios.post(apiUrl)
+        .then((response) => {
+          // Handle the response
+          const responseData = response.data;
+          console.log("Response:", response.data);
+          location.reload();
+        })
         console.log("Copying to:", this.selectedFolder.name);
         this.closeCopyToDialog();
       }
@@ -511,6 +668,7 @@ methods: {
       console.log('Updating contact:', this.editedContact)
       if (this.selectedContactIndex !== null) {
 
+        axios.post(`http://192.168.116.205:8080/api/${this.username}/contacts/rename?contactId=${this.editedContact.contactId}&newName=${this.editedContact.name}`)
         this.$set(this.contacts, this.selectedContactIndex, this.editedContact);
         // Make an API call to update the contact on the server if needed
       }

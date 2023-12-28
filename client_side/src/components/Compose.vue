@@ -139,8 +139,10 @@ export default {
       this.attachments.splice(index, 1);
     },
     submit() {
-      let array = this.To.split(",");
-      if (this.$refs.form.validate()) {
+      // // let array = this.To.split(",");
+      // if (this.$refs.form.validate()) {
+        console.log("Send button clicked");
+        console.log("defaultMid:", this.defaultMid);
         switch (this.priority) {
           case "Superhigh":
             this.priority = 1;
@@ -162,7 +164,7 @@ export default {
         let mail = new PostEmailDto(
           this.Mid,
           this.From,
-          array,
+          this.To,
           this.Subject,
           this.content,
           this.date,
@@ -170,15 +172,16 @@ export default {
           this.attachments,
           this.isDraft
         );
-let g = document.getElementById("choose").files;
-        this.attachments.forEach((attachment) => {
-          g.append(attachment);
-        });
+        let g = document.getElementById("choose").files;
+        // g = Array.from(g);
+        // this.attachments.forEach((attachment) => {
+        //   g.append(attachment);
+        // });
         let url=`http://192.168.116.205:8080/api/${this.username}/email/create`
         bodyFormData.append("file", g[0]);
         if (this.fromDraft) {
-          url=`http://192.168.116.205:8080/api/${this.username}/email/edit`
-          bodyFormData.append("emailId", mail.id);
+          url=`http://192.168.116.205:8080/api/${this.username}/email/draft`
+          bodyFormData.append("emailId", mail.emailId);
         } else {
           bodyFormData.append("emailId", -1);
         }
@@ -222,12 +225,13 @@ let g = document.getElementById("choose").files;
               console.error("Error sending mail:", error);
             });
         }
-      }
+      // }
     },
 
     draft() {
-      let array = this.To.split(",");
-      if (this.$refs.form.validate()) {
+      console.log("Draft button clicked");
+      // let array = this.To.split(",");
+      // if (this.$refs.form.validate()) {
         switch (this.priority) {
           case "Superhigh":
             this.priority = 1;
@@ -249,7 +253,7 @@ let g = document.getElementById("choose").files;
         let mail = new PostEmailDto(
           this.Mid,
           this.From,
-          array,
+          this.To,
           this.Subject,
           this.content,
           this.date,
@@ -265,8 +269,8 @@ let g = document.getElementById("choose").files;
         bodyFormData.append("file", g[0]);
         let url="http://192.168.116.205:8080/api/${this.username}/email/create"
         if (this.fromDraft) {
-          url="http://192.168.116.205:8080/api/${this.username}/email/edit"
-          bodyFormData.append("emailId", mail.id);
+          url="http://192.168.116.205:8080/api/${this.username}/email/draft"
+          bodyFormData.append("emailId", mail.emailId);
         } else {
           bodyFormData.append("emailId", -1);
         }
@@ -310,7 +314,7 @@ let g = document.getElementById("choose").files;
               console.error("Error sending mail:", error);
             });
         }
-      }
+      // }
     },
   },
 };

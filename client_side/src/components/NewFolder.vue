@@ -45,8 +45,8 @@ export default {
       axios.post(`http://192.168.116.205:8080/api/ayman/folder/create?folderName=${this.folderName}`)
         .then((response) => {
           console.log(response);
-          const newFolder = new Folder(response.data.folderId, this.folderName);
-          this.$emit('folderCreated', newFolder);
+          // const newFolder = new Folder(response.data.folderId, this.folderName);
+          // this.$emit('folderCreated', newFolder);
         })
         .catch((error) => {
           console.error(error);

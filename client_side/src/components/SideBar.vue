@@ -147,7 +147,7 @@ export default {
   methods: {
     // Add a method to load data using axios
     loadData() {
-      axios.get('http://192.168.116.205:8080/api/mohamed/folder/list')
+      axios.get(`http://192.168.116.205:8080/api/${this.username}/folder/list`)
         .then(response => {
           // Assuming response.data is an array of objects with properties like text and route
           const newData = response.data.map(item => ({
@@ -204,8 +204,20 @@ export default {
       // Implement logic to rename the folder at the specified index
       const folderIndex = this.renamingIndex;
       const newFolderName = this.newFolderName;
+      let fids=Object.values(this.$store.getters.getHashMap).map(obj => obj.folderId)
+      let ids=Object.values(fids);
+
       // Update addedFolders array or perform any necessary action
       console.log(`Rename folder at index ${folderIndex} to ${newFolderName}`);
+      axios.post(`http://192.168.116.205:8080/api/${this.username}/folder/rename?folderId=${ids[this.renamingIndex]}&newFolderName=${newFolderName}`)
+        .then((response) => {
+          console.log(response);
+          // const newFolder = new Folder(response.data.folderId, this.folderName);
+          // this.$emit('folderCreated', newFolder);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
 
       // Close the dialog and reset values
       this.renameDialog = false;
@@ -222,6 +234,19 @@ export default {
       // Implement logic to delete the folder at the specified index
       // Update addedFolders array or perform any necessary action
       console.log(`Delete folder at index ${index}`);
+      let fids=Object.values(this.$store.getters.getHashMap).map(obj => obj.folderId)
+      let ids=Object.values(fids);
+        axios.post(`http://192.168.116.205:8080/api/${this.username}/folder/delete?folderId=${ids[index]}`)
+        .then((response) => {
+          window.location.reload();
+
+          console.log(response);
+          // const newFolder = new Folder(response.data.folderId, this.folderName);
+          // this.$emit('folderCreated', newFolder);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     },
     // New method to show the filter dialog
     showFilterDialog() {
